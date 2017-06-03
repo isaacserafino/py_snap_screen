@@ -15,16 +15,18 @@ from web.views import MonitoringView
 # TODO: (IMS) Create your tests here.
 
 # View Tests
-class TestAdministrationView(TestCase):
+class AdministrationViewTest(TestCase):
     pass
 
-class TestMonitoringView(TestCase):
+
+class MonitoringViewTest(TestCase):
     pass
 
 
 # Business Service Tests
-class TestAdministrationService(TestCase):
+class AdministrationServiceTest(TestCase):
     pass
 
-class TestMonitoringService(TestCase):
+
+class MonitoringServiceTest(TestCase):
     pass
