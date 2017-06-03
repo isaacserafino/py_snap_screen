@@ -1,5 +1,4 @@
-from django.db import models
-from django.test import TestCase
+from unittest import TestCase
 from unittest import mock
 
 import dropbox
@@ -62,16 +61,36 @@ class SupervisorIdServiceTest(TestCase):
 
 
 class ViewerConnectionServiceTest(TestCase):
-    pass
+    STUB_AUTHORIZATION_URI = "https://www.example.com/stub_authorization_uri"
+    STUB_QUERY_PARAMS = {}
+
+    def setup(self):
+        self.candidate = mock_factory.createViewerConnectionService()
+
+    def test_start_creating_connection(self):
+        self.setup()
+
+        mock_factory.mock_viewer_connection_service.return_value.start.return_value = self.STUB_AUTHORIZATION_URI
+
+        authorization_uri = self.candidate.start_creating_connection()
+        
+        self.assertEqual(self.STUB_AUTHORIZATION_URI, authorization_uri)
+
+    def test_finish_creating_connection(self):
+        self.setup()
+
+        self.candidate.finish_creating_connection(self.STUB_QUERY_PARAMS)
+
+        mock_factory.mock_viewer_connection_service.return_value.finish.assert_called_once_with(self.STUB_QUERY_PARAMS)
 
 
 class ViewerServiceTest(TestCase):
-    AUTHORIZATION_TOKEN = "stub_authorization_token"
+    STUB_AUTHORIZATION_TOKEN = "stub_authorization_token"
     STUB_CONTENTS = "stub_contents".encode()
     STUB_FILENAME = "stub_filename.txt"
 
     activity = Activity(STUB_FILENAME, STUB_CONTENTS)
-    connection = ViewerConnection(True, AUTHORIZATION_TOKEN)
+    connection = ViewerConnection(True, STUB_AUTHORIZATION_TOKEN)
 
     def setup(self):
         self.candidate = mock_factory.createViewerService()
@@ -81,7 +100,7 @@ class ViewerServiceTest(TestCase):
 
         self.candidate.send_activity(self.activity, self.connection)
         
-        mock_factory.mock_viewer_service.assert_called_once_with(self.AUTHORIZATION_TOKEN)
+        mock_factory.mock_viewer_service.assert_called_once_with(self.STUB_AUTHORIZATION_TOKEN)
         mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(self.STUB_CONTENTS, "/" + self.STUB_FILENAME)
 
 
@@ -96,6 +115,12 @@ class MockCoreServiceFactory:
         self.mock_supervisor_id_service = mock_core
         id_generator = shortuuid.ShortUUID()
         return SupervisorIdService(id_generator)
+
+    @mock.patch("dropbox.DropboxOAuth2Flow", autospec=True)
+    def createViewerConnectionService(self, mock_core):
+        self.mock_viewer_connection_service = mock_core
+        flow = dropbox.DropboxOAuth2Flow(None, None, None, None, None)
+        return ViewerConnectionService(flow)
 
     @mock.patch("dropbox.Dropbox", autospec=True)
     def createViewerService(self, mock_core):
