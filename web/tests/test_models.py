@@ -22,20 +22,16 @@ class PersistenceServiceTest(TestCase):
     connection = ViewerConnection(STUB_ACTIVE, STUB_AUTHORIZATION_TOKEN)
     supervisor_id = SupervisorId(STUB_SUPERVISOR_ID_VALUE)
 
-    def setup(self):
+    def setUp(self):
         self.candidate = mock_factory.createPersistenceService()
 
     def test_save_viewer_connection(self):
-        self.setup()
-
         self.candidate.save_viewer_connection(self.connection, self.supervisor_id)
         
         mock_factory.mock_persistence_service.assert_called_once_with(active=self.STUB_ACTIVE, supervisor_id=self.STUB_SUPERVISOR_ID_VALUE, viewer_authentication_key=self.STUB_AUTHORIZATION_TOKEN)
         mock_factory.mock_persistence_service.return_value.save.assert_called_once_with()
 
     def test_retrieve_viewer_connection(self):
-        self.setup()
-
         mock_factory.mock_persistence_service.objects.get.return_value = mock.MagicMock(active=self.STUB_ACTIVE, viewer_authentication_key=self.STUB_AUTHORIZATION_TOKEN)
 
         actual_connection = self.candidate.retrieve_viewer_connection(self.supervisor_id)
@@ -47,12 +43,10 @@ class PersistenceServiceTest(TestCase):
 class SupervisorIdServiceTest(TestCase):
     STUB_SUPERVISOR_ID_VALUE = "3oe2UAP"
 
-    def setup(self):
+    def setUp(self):
         self.candidate = mock_factory.createSupervisorIdService()
         
     def test_generate(self):
-        self.setup()
-
         mock_factory.mock_supervisor_id_service.return_value.random.return_value = self.STUB_SUPERVISOR_ID_VALUE
 
         supervisor_id = self.candidate.generate()
@@ -70,20 +64,16 @@ class ViewerConnectionServiceTest(TestCase):
     STUB_SECRET = "stub secret"
     STUB_SESSION = {}
 
-    def setup(self):
+    def setUp(self):
         self.candidate = mock_factory.createViewerConnectionService()
 
     def test_create_flow_object(self):
-        self.setup()
-
         actual_flow = self.candidate.create_flow_object(self.STUB_KEY, self.STUB_SECRET, self.STUB_CALLBACK_URL, self.STUB_SESSION, self.STUB_CSRF_TOKEN_ATTRIBUTE_NAME)
 
         mock_factory.mock_viewer_connection_service.assert_called_once_with(self.STUB_KEY, self.STUB_SECRET, self.STUB_CALLBACK_URL, self.STUB_SESSION, self.STUB_CSRF_TOKEN_ATTRIBUTE_NAME) 
         self.assertEqual(mock_factory.mock_viewer_connection_service.return_value, actual_flow)
 
     def test_start_creating_connection(self):
-        self.setup()
-
         flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
 
         flow.start.return_value = self.STUB_AUTHORIZATION_URI
@@ -92,8 +82,6 @@ class ViewerConnectionServiceTest(TestCase):
         self.assertEqual(self.STUB_AUTHORIZATION_URI, authorization_uri)
 
     def test_finish_creating_connection(self):
-        self.setup()
-
         flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
         flow.finish.return_value = self.STUB_AUTHORIZATION_TOKEN
 
@@ -112,12 +100,10 @@ class ViewerServiceTest(TestCase):
     activity = Activity(STUB_FILENAME, STUB_CONTENTS)
     connection = ViewerConnection(True, STUB_AUTHORIZATION_TOKEN)
 
-    def setup(self):
+    def setUp(self):
         self.candidate = mock_factory.createViewerService()
 
     def test_send_activity(self):
-        self.setup()
-
         self.candidate.send_activity(self.activity, self.connection)
         
         mock_factory.mock_viewer_service.assert_called_once_with(self.STUB_AUTHORIZATION_TOKEN)

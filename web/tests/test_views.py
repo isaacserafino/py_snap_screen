@@ -23,13 +23,17 @@ class MonitoringViewTest(TestCase):
     pass
 
 
+class ViewerConnectionCallbackViewTest(TestCase):
+    pass
+
+
 # Business Service Tests
 class AdministrationServiceTest(TestCase):
-    def setup(self):
+    def setUp(self):
         pass
 
 
 class MonitoringServiceTest(TestCase):
-    def setup(self):
+    def setUp(self):
         pass
     
