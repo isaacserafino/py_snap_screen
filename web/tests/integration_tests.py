@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from py_snap_screen import settings
 from web import core
 from web.models import Activity
 from web.models import PersistenceService
@@ -8,7 +9,7 @@ from web.models import SupervisorIdService
 from web.models import ViewerConnection
 from web.models import ViewerConnectionService
 from web.models import ViewerService
-from py_snap_screen import settings
+from web.views import AdministrationService
 
 # TODO: (IMS) Change from service tests to view tests
 
@@ -51,8 +52,21 @@ class SupervisorIdServiceTest(TestCase):
         self.assertEqual(7, len(supervisor_id.value))
 
 
-class ViewerConnectionServiceTest(TestCase):
-    pass
+class AdministrationServiceTest(TestCase):
+    def setUp(self):
+        persistence_service = core_service_factory.createPersistenceService()
+        supervisor_id_service = core_service_factory.createSupervisorIdService()
+        viewer_connection_service = core_service_factory.createViewerConnectionService()
+        self.candidate = AdministrationService(persistence_service, supervisor_id_service, viewer_connection_service)
+
+    def test_start_creating_supervisor_id(self):
+        session = {}
+        authorization_url = self.candidate.start_creating_supervisor_id(session)
+        
+        self.assertTrue(authorization_url.startswith("https://www.dropbox.com/oauth2/authorize?response_type=code&client_id=" + settings.DROPBOX_API_KEY + "&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Fviewer-connection-callback%2F&state="))
+        self.assertIn("dropbox-auth-csrf-token", session)
+
+    # TODO: Is it feasible or desireable to test the callback?
 
 
 class ViewerServiceTest(TestCase):
