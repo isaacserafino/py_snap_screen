@@ -67,19 +67,19 @@ class ViewerConnectionServiceTest(TestCase):
     def setup(self):
         self.candidate = mock_factory.createViewerConnectionService()
 
+    # TODO: Extract flow object creation into own test, use mock for these
     def test_start_creating_connection(self):
         self.setup()
 
         mock_factory.mock_viewer_connection_service.return_value.start.return_value = self.STUB_AUTHORIZATION_URI
-
-        authorization_uri = self.candidate.start_creating_connection()
+        authorization_uri = self.candidate.start_creating_connection(self.candidate.create_flow_object(None, None, None, None, None))
         
         self.assertEqual(self.STUB_AUTHORIZATION_URI, authorization_uri)
 
     def test_finish_creating_connection(self):
         self.setup()
 
-        self.candidate.finish_creating_connection(self.STUB_QUERY_PARAMS)
+        self.candidate.finish_creating_connection(self.STUB_QUERY_PARAMS, self.candidate.create_flow_object(None, None, None, None, None))
 
         mock_factory.mock_viewer_connection_service.return_value.finish.assert_called_once_with(self.STUB_QUERY_PARAMS)
 
@@ -87,7 +87,7 @@ class ViewerConnectionServiceTest(TestCase):
 class ViewerServiceTest(TestCase):
     STUB_AUTHORIZATION_TOKEN = "stub_authorization_token"
     STUB_CONTENTS = "stub_contents".encode()
-    STUB_FILENAME = "stub_filename.txt"
+    STUB_FILENAME = "/stub_filename.txt"
 
     activity = Activity(STUB_FILENAME, STUB_CONTENTS)
     connection = ViewerConnection(True, STUB_AUTHORIZATION_TOKEN)
@@ -101,7 +101,7 @@ class ViewerServiceTest(TestCase):
         self.candidate.send_activity(self.activity, self.connection)
         
         mock_factory.mock_viewer_service.assert_called_once_with(self.STUB_AUTHORIZATION_TOKEN)
-        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(self.STUB_CONTENTS, "/" + self.STUB_FILENAME)
+        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(self.STUB_CONTENTS, self.STUB_FILENAME)
 
 
 class MockCoreServiceFactory: 
@@ -119,8 +119,7 @@ class MockCoreServiceFactory:
     @mock.patch("dropbox.DropboxOAuth2Flow", autospec=True)
     def createViewerConnectionService(self, mock_core):
         self.mock_viewer_connection_service = mock_core
-        flow = dropbox.DropboxOAuth2Flow(None, None, None, None, None)
-        return ViewerConnectionService(flow)
+        return ViewerConnectionService(dropbox.DropboxOAuth2Flow)
 
     @mock.patch("dropbox.Dropbox", autospec=True)
     def createViewerService(self, mock_core):

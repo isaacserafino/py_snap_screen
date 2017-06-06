@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^monitor/', web.views.MonitoringView.as_view()),
     url(r'^supervisor/', web.views.AdministrationView.as_view()),
+    url(r'^viewer-connection-callback/', web.views.ViewerConnectionCallbackView.as_view()),
 ]

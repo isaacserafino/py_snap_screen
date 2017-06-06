@@ -25,8 +25,11 @@ class MonitoringViewTest(TestCase):
 
 # Business Service Tests
 class AdministrationServiceTest(TestCase):
-    pass
+    def setup(self):
+        pass
 
 
 class MonitoringServiceTest(TestCase):
-    pass
+    def setup(self):
+        pass
+    

@@ -1,13 +1,61 @@
+from django.contrib import admin
 from django.shortcuts import render
 from django.views.generic import View
+from django.views.generic import TemplateView
+
+from py_snap_screen import settings
+from web import core
+from web.models import Activity
+from web.models import PersistenceService
+from web.models import SupervisorId
+from web.models import SupervisorIdService
+from web.models import ViewerConnection
+from web.models import ViewerConnectionService
+from web.models import ViewerService
 
 # Views
-class AdministrationView(View):
-    pass
+class AdministrationView(TemplateView):
+    template_name = "supervisor.html"
+
+    def get(self, request, *args, **kwargs):
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "http://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+
+        authorization_url = administration_service.start_creating_supervisor_id(flow);
+
+        return render(request, self.template_name, {'authorization_url': authorization_url})
 
 
 class MonitoringView(View):
-    pass
+    def dispatch(self, request, *args, **kwargs):
+        supervisor_id_value = request.POST["supervisor_id"]
+        file = request.FILES["activity"]
+
+        if supervisor_id_value is None or file is None: return
+
+        filename = file.name
+        # TODO: Use chunks?
+        activity_value = file.read()
+
+        activity = Activity(filename, activity_value)
+        supervisor_id = SupervisorId(supervisor_id_value) 
+
+        monitoring_service.track_activity(activity, supervisor_id)
+
+        return View.dispatch(self, request, *args, **kwargs)
+
+
+class ViewerConnectionCallbackView(TemplateView):
+    template_name = "callback.html"
+
+    def post(self, request, *args, **kwargs):
+        callback_parameters = request.POST
+
+        # TODO: extract
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "http://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+
+        self.supervisor_id = administration_service.finish_creating_supervisor_id(callback_parameters, flow)
+
+        return TemplateView.get(self, request, *args, **kwargs)
 
 
 # Business Services
@@ -17,8 +65,8 @@ class AdministrationService:
         self.supervisor_id_service = supervisor_id_service
         self.viewer_connection_service = viewer_connection_service
 
-    def finish_creating_supervisor_id(self, callback_parameters):
-        connection = self.viewer_connection_service.finish_creating_connection(callback_parameters)
+    def finish_creating_supervisor_id(self, callback_parameters, flow):
+        connection = self.viewer_connection_service.finish_creating_connection(callback_parameters, flow)
         if connection is None: return None
 
         supervisor_id = supervisor_id_service.generate()
@@ -28,8 +76,8 @@ class AdministrationService:
 
         return supervisor_id
 
-    def start_creating_supervisor_id(self, callback_uri):
-        self.viewer_connection_service.start_creating_connection(callback_uri)
+    def start_creating_supervisor_id(self, flow):
+        return self.viewer_connection_service.start_creating_connection(flow)
 
 
 class MonitoringService:
@@ -44,3 +92,13 @@ class MonitoringService:
 
         if connection is not None and connection.active:
             self.viewer_service.send_activity(activity, connection)
+
+
+factory = core.CoreServiceFactory()
+viewer_service = factory.createViewerService()
+persistence_service = factory.createPersistenceService()
+monitoring_service = MonitoringService(persistence_service, viewer_service)
+
+supervisor_id_service = factory.createSupervisorIdService()
+viewer_connection_service = factory.createViewerConnectionService()
+administration_service = AdministrationService(persistence_service, supervisor_id_service, viewer_connection_service)

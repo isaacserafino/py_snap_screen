@@ -27,16 +27,21 @@ class ViewerConnectionService:
     def __init__(self, flow):
         self.flow = flow
 
-    def start_creating_connection(self):
+    def create_flow_object(self, viewer_key, viewer_secret, callback_url, session, csrf_token_attribute_name):
         if self.flow is None: return None
-        
-        return self.flow.start()
 
-    def finish_creating_connection(self, callback_parameters):
-        if self.flow is None: return None
+        return self.flow(viewer_key, viewer_secret, callback_url, session, csrf_token_attribute_name)
+
+    def start_creating_connection(self, flow_object):
+        if flow_object is None: return None
+
+        return flow_object.start()
+
+    def finish_creating_connection(self, callback_parameters, flow_object):
+        if flow_object is None: return None
         
         # TODO: (IMS) Handle exceptions
-        return self.flow.finish(callback_parameters)
+        return flow_object.finish(callback_parameters)
     
 
 class ViewerService:
@@ -47,7 +52,7 @@ class ViewerService:
         if self.third_party is None or activity is None or connection is None or connection.authorization_token is None: return None
 
         api = self.third_party(connection.authorization_token)
-        api.files_upload(activity.image, "/" + activity.filename)
+        api.files_upload(activity.image, activity.filename)
 
 
 # Business Model
