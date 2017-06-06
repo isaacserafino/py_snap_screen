@@ -18,9 +18,7 @@ class AdministrationView(TemplateView):
     template_name = "supervisor.html"
 
     def get(self, request, *args, **kwargs):
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "dropbox-auth-csrf-token")
-
-        authorization_url = administration_service.start_creating_supervisor_id(flow);
+        authorization_url = administration_service.start_creating_supervisor_id(request.session);
 
         return render(request, self.template_name, {'authorization_url': authorization_url})
 
@@ -48,13 +46,9 @@ class ViewerConnectionCallbackView(TemplateView):
     template_name = "callback.html"
 
     def post(self, request, *args, **kwargs):
-        callback_parameters = request.POST
+        supervisor_id = administration_service.finish_creating_supervisor_id(request.POST, request.session)
 
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "dropbox-auth-csrf-token")
-
-        self.supervisor_id = administration_service.finish_creating_supervisor_id(callback_parameters, flow)
-
-        return TemplateView.get(self, request, *args, **kwargs)
+        return render(request, self.template_name, {'supervisor_id': supervisor_id.value})
 
 
 # Business Services
@@ -64,19 +58,26 @@ class AdministrationService:
         self.supervisor_id_service = supervisor_id_service
         self.viewer_connection_service = viewer_connection_service
 
-    def finish_creating_supervisor_id(self, callback_parameters, flow):
+    def finish_creating_supervisor_id(self, callback_parameters, session):
+        flow = self._create_flow(session)
+
         connection = self.viewer_connection_service.finish_creating_connection(callback_parameters, flow)
         if connection is None: return None
 
-        supervisor_id = supervisor_id_service.generate()
+        supervisor_id = self.supervisor_id_service.generate()
         if supervisor_id is None: return None
 
         self.persistence_service.save_viewer_connection(connection, supervisor_id)
 
         return supervisor_id
 
-    def start_creating_supervisor_id(self, flow):
+    def start_creating_supervisor_id(self, session):
+        flow = self._create_flow(session)
+
         return self.viewer_connection_service.start_creating_connection(flow)
+
+    def _create_flow(self, session):
+        return self.viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
 
 
 class MonitoringService:

@@ -131,4 +131,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = u'/home/isaacserafino/py_snap_screen/static'
 STATIC_URL = '/static/'
 
+DROPBOX_CALLBACK_URL = "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/"
+#DROPBOX_CALLBACK_URL = "http://127.0.0.1:8000/viewer-connection-callback/"
+
 from py_snap_screen.settings_local import *

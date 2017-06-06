@@ -41,7 +41,9 @@ class ViewerConnectionService:
         if flow_object is None: return None
         
         # TODO: (IMS) Handle exceptions
-        return flow_object.finish(callback_parameters)
+        authorization_token = flow_object.finish(callback_parameters)
+
+        return ViewerConnection(True, authorization_token)
     
 
 class ViewerService:
