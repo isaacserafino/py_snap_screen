@@ -51,7 +51,7 @@ class ViewerConnectionCallbackView(TemplateView):
         callback_parameters = request.POST
 
         # TODO: extract
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "http://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
 
         self.supervisor_id = administration_service.finish_creating_supervisor_id(callback_parameters, flow)
 
