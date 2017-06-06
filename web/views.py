@@ -18,7 +18,7 @@ class AdministrationView(TemplateView):
     template_name = "supervisor.html"
 
     def get(self, request, *args, **kwargs):
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "dropbox-auth-csrf-token")
 
         authorization_url = administration_service.start_creating_supervisor_id(flow);
 
@@ -50,8 +50,7 @@ class ViewerConnectionCallbackView(TemplateView):
     def post(self, request, *args, **kwargs):
         callback_parameters = request.POST
 
-        # TODO: extract
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "dropbox-auth-csrf-token")
 
         self.supervisor_id = administration_service.finish_creating_supervisor_id(callback_parameters, flow)
 
