@@ -61,27 +61,47 @@ class SupervisorIdServiceTest(TestCase):
 
 
 class ViewerConnectionServiceTest(TestCase):
+    STUB_AUTHORIZATION_TOKEN = "stub_authorization_token"
     STUB_AUTHORIZATION_URI = "https://www.example.com/stub_authorization_uri"
+    STUB_CALLBACK_URL = "https://www.example.com/stub_callback_url"
+    STUB_CSRF_TOKEN_ATTRIBUTE_NAME = "dropbox-auth-csrf-token"
+    STUB_KEY = "stub key"
     STUB_QUERY_PARAMS = {}
+    STUB_SECRET = "stub secret"
+    STUB_SESSION = {}
 
     def setup(self):
         self.candidate = mock_factory.createViewerConnectionService()
 
-    # TODO: Extract flow object creation into own test, use mock for these
+    def test_create_flow_object(self):
+        self.setup()
+
+        actual_flow = self.candidate.create_flow_object(self.STUB_KEY, self.STUB_SECRET, self.STUB_CALLBACK_URL, self.STUB_SESSION, self.STUB_CSRF_TOKEN_ATTRIBUTE_NAME)
+
+        mock_factory.mock_viewer_connection_service.assert_called_once_with(self.STUB_KEY, self.STUB_SECRET, self.STUB_CALLBACK_URL, self.STUB_SESSION, self.STUB_CSRF_TOKEN_ATTRIBUTE_NAME) 
+        self.assertEqual(mock_factory.mock_viewer_connection_service.return_value, actual_flow)
+
     def test_start_creating_connection(self):
         self.setup()
 
-        mock_factory.mock_viewer_connection_service.return_value.start.return_value = self.STUB_AUTHORIZATION_URI
-        authorization_uri = self.candidate.start_creating_connection(self.candidate.create_flow_object(None, None, None, None, None))
+        flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
+
+        flow.start.return_value = self.STUB_AUTHORIZATION_URI
+        authorization_uri = self.candidate.start_creating_connection(flow)
         
         self.assertEqual(self.STUB_AUTHORIZATION_URI, authorization_uri)
 
     def test_finish_creating_connection(self):
         self.setup()
 
-        self.candidate.finish_creating_connection(self.STUB_QUERY_PARAMS, self.candidate.create_flow_object(None, None, None, None, None))
+        flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
+        flow.finish.return_value = self.STUB_AUTHORIZATION_TOKEN
 
-        mock_factory.mock_viewer_connection_service.return_value.finish.assert_called_once_with(self.STUB_QUERY_PARAMS)
+        actual_connection = self.candidate.finish_creating_connection(self.STUB_QUERY_PARAMS, flow)
+
+        flow.finish.assert_called_once_with(self.STUB_QUERY_PARAMS)
+        self.assertTrue(actual_connection.active)
+        self.assertEqual(self.STUB_AUTHORIZATION_TOKEN, actual_connection.authorization_token)
 
 
 class ViewerServiceTest(TestCase):
