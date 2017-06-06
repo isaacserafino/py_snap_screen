@@ -65,7 +65,7 @@ class ViewerConnectionServiceTest(TestCase):
 
     def test_finish_creating_connection(self):
         flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
-        flow.finish.return_value = stubs.AUTHORIZATION_TOKEN
+        flow.finish.return_value = mock.MagicMock(access_token=stubs.AUTHORIZATION_TOKEN)
 
         actual_connection = self.candidate.finish_creating_connection(stubs.QUERY_PARAMS, flow)
 

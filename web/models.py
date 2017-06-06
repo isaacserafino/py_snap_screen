@@ -21,7 +21,7 @@ class SupervisorIdService:
         value = self.id_generator.random(length=7)
 
         return SupervisorId(value)
-    
+
 
 class ViewerConnectionService:
     def __init__(self, flow):
@@ -41,9 +41,9 @@ class ViewerConnectionService:
         if flow_object is None: return None
         
         # TODO: (IMS) Handle exceptions
-        authorization_token = flow_object.finish(callback_parameters)
+        result = flow_object.finish(callback_parameters)
 
-        return ViewerConnection(True, authorization_token)
+        return ViewerConnection(True, result.access_token)
     
 
 class ViewerService:

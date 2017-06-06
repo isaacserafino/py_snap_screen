@@ -45,8 +45,8 @@ class MonitoringView(View):
 class ViewerConnectionCallbackView(TemplateView):
     template_name = "callback.html"
 
-    def post(self, request, *args, **kwargs):
-        supervisor_id = administration_service.finish_creating_supervisor_id(request.POST, request.session)
+    def get(self, request, *args, **kwargs):
+        supervisor_id = administration_service.finish_creating_supervisor_id(request.GET, request.session)
 
         return render(request, self.template_name, {'supervisor_id': supervisor_id.value})
 
