@@ -18,7 +18,7 @@ class AdministrationView(TemplateView):
     template_name = "supervisor.html"
 
     def get(self, request, *args, **kwargs):
-        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "http://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
+        flow = viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/", request.session, "csrf-token")
 
         authorization_url = administration_service.start_creating_supervisor_id(flow);
 
