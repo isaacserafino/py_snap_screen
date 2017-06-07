@@ -28,7 +28,16 @@ class AdministrationViewTest(TestCase):
 
 class MonitoringViewTest(TestCase):
     def setUp(self):
-        pass
+        self.candidate = MonitoringView()
+
+    # TODO: Finish
+    @mock.patch("web.views.monitoring_service", autospec=True)
+    def test_post(self, mock_monitoring_service):
+        STUB_FILE = mock.MagicMock(name=stubs.FILENAME, read=lambda: stubs.CONTENTS)
+        STUB_REQUEST = mock.MagicMock(POST={'supervisor_id':stubs.SUPERVISOR_ID_VALUE}, FILES={'activity':STUB_FILE})
+        self.candidate.dispatch(STUB_REQUEST);
+
+        mock_monitoring_service.track_activity.assert_called_once()
 
 
 class ViewerConnectionCallbackViewTest(TestCase):
@@ -37,7 +46,7 @@ class ViewerConnectionCallbackViewTest(TestCase):
 
     # TODO: Finish
     @mock.patch("web.views.administration_service", autospec=True)
-    def test_post(self, mock_administration_service):
+    def test_get(self, mock_administration_service):
         self.candidate.get(mock.MagicMock(GET={}, session={}));
 
         mock_administration_service.finish_creating_supervisor_id.assert_called_once()
