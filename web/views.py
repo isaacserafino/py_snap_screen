@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.views.generic import TemplateView
@@ -27,21 +27,22 @@ class AdministrationView(TemplateView):
 class MonitoringView(View):
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
+        if not ("supervisor_id" in request.POST or "activity" in request.FILES):
+                return View.dispatch(self, request, *args, **kwargs)
+
         supervisor_id_value = request.POST["supervisor_id"]
         file = request.FILES["activity"]
-
-        if supervisor_id_value is None or file is None: return
 
         filename = file.name
         # TODO: Use chunks?
         activity_value = file.read()
 
         activity = Activity(filename, activity_value)
-        supervisor_id = SupervisorId(supervisor_id_value) 
+        supervisor_id = SupervisorId(supervisor_id_value)
 
         monitoring_service.track_activity(activity, supervisor_id)
 
-        return View.dispatch(self, request, *args, **kwargs)
+        return redirect('/')
 
 
 class ViewerConnectionCallbackView(TemplateView):
@@ -93,7 +94,7 @@ class MonitoringService:
         connection = self.persistence_service.retrieve_viewer_connection(supervisor_id)
 
         if connection is not None and connection.active:
-            self.viewer_service.send_activity(activity, connection)
+                self.viewer_service.send_activity(activity, connection)
 
 
 factory = core.CoreServiceFactory()
