@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.views.generic import TemplateView
 
@@ -24,6 +25,7 @@ class AdministrationView(TemplateView):
 
 
 class MonitoringView(View):
+    @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         supervisor_id_value = request.POST["supervisor_id"]
         file = request.FILES["activity"]
