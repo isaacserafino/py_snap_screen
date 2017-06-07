@@ -16,6 +16,7 @@ from web.views import AdministrationService
 from web.views import AdministrationView
 from web.views import MonitoringService
 from web.views import MonitoringView
+from web.views import ViewerConnectionCallbackView
 
 # TODO: (IMS) Create your tests here.
 
@@ -32,7 +33,14 @@ class MonitoringViewTest(TestCase):
 
 class ViewerConnectionCallbackViewTest(TestCase):
     def setUp(self):
-        pass
+        self.candidate = ViewerConnectionCallbackView()
+
+    # TODO: Finish
+    @mock.patch("web.views.administration_service", autospec=True)
+    def test_post(self, mock_administration_service):
+        self.candidate.get(mock.MagicMock(GET={}, session={}));
+
+        mock_administration_service.finish_creating_supervisor_id.assert_called_once()
 
 
 # Business Service Tests
@@ -78,7 +86,7 @@ class AdministrationServiceTest(TestCase):
     def _assert_created_flow(self, session):
         self.mock_viewer_connection_service.create_flow_object.assert_called_once_with(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
 
+
 class MonitoringServiceTest(TestCase):
     def setUp(self):
         pass
-    
