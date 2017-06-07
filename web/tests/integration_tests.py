@@ -74,13 +74,13 @@ class ViewerServiceTest(TestCase):
         self.candidate.send_activity(stubs.ACTIVITY, self.connection)
 
         api = core_service_factory.core_viewer_service(self.AUTHORIZATION_TOKEN)
-        metadata, resource = api.files_download(stubs.FILENAME)
+        metadata, resource = api.files_download(stubs.CORE_FILENAME)
 
         self.assertEqual(stubs.CONTENTS, resource.content)
 
     def tearDown(self):
         api = core_service_factory.core_viewer_service(self.AUTHORIZATION_TOKEN)
-        api.files_delete(stubs.FILENAME)
+        api.files_delete(stubs.CORE_FILENAME)
 
 
 core_service_factory = core.CoreServiceFactory()

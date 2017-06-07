@@ -82,7 +82,7 @@ class ViewerServiceTest(TestCase):
         self.candidate.send_activity(stubs.ACTIVITY, stubs.CONNECTION)
         
         mock_factory.mock_viewer_service.assert_called_once_with(stubs.AUTHORIZATION_TOKEN)
-        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(stubs.CONTENTS, stubs.FILENAME)
+        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(stubs.CONTENTS, stubs.CORE_FILENAME)
 
 
 class MockCoreServiceFactory: 

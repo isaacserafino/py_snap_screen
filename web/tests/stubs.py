@@ -10,7 +10,8 @@ AUTHORIZATION_TOKEN = "stub_authorization_token"
 CONNECTION = ViewerConnection(ACTIVE, AUTHORIZATION_TOKEN)
 
 CONTENTS = b'stub_contents'
-FILENAME = "/stub_filename.txt"
+FILENAME = "stub_filename.txt"
+CORE_FILENAME = "/stub_filename.txt"
 ACTIVITY = Activity(FILENAME, CONTENTS)
 
 CSRF_TOKEN_ATTRIBUTE_NAME = "dropbox-auth-csrf-token"

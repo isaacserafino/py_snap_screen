@@ -54,7 +54,7 @@ class ViewerService:
         if self.third_party is None or activity is None or connection is None or connection.authorization_token is None: return None
 
         api = self.third_party(connection.authorization_token)
-        api.files_upload(activity.image, activity.filename)
+        api.files_upload(activity.image, "/" + activity.filename)
 
 
 # Business Model
