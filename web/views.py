@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
@@ -15,13 +16,22 @@ from web.models import ViewerConnectionService
 from web.models import ViewerService
 
 # Views
-class AdministrationView(TemplateView):
+class AdministrationView(LoginRequiredMixin, TemplateView):
     template_name = "supervisor.html"
 
     def get(self, request, *args, **kwargs):
-        authorization_url = administration_service.start_creating_supervisor_id(request.session);
+        authorization_url = '' #administration_service.start_creating_supervisor_id(request.session);
 
         return render(request, self.template_name, {'authorization_url': authorization_url})
+
+
+class LoginView(TemplateView):
+    template_name = "login.html"
+
+    def get(self, request, *args, **kwargs):
+        next = request.GET.get('next', '/')
+
+        return render(request, self.template_name, {'next': next})
 
 
 class MonitoringView(View):
@@ -45,11 +55,11 @@ class MonitoringView(View):
         return redirect('/')
 
 
-class ViewerConnectionCallbackView(TemplateView):
+class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
     template_name = "callback.html"
 
     def get(self, request, *args, **kwargs):
-        supervisor_id = administration_service.finish_creating_supervisor_id(request.GET, request.session)
+        supervisor_id = administration_service.retrieve_supervisor_id(request.user)
 
         return render(request, self.template_name, {'supervisor_id': supervisor_id.value})
 
@@ -73,6 +83,19 @@ class AdministrationService:
         self.persistence_service.save_viewer_connection(connection, supervisor_id)
 
         return supervisor_id
+
+    # TODO
+    def retrieve_supervisor_id(self, user):
+        inbound_identity_token = user.id
+        supervisor = self.persistence_service.retrieve_supervisor_by_inbound_identity_token(inbound_identity_token)
+
+        if supervisor is None:
+            connection = self.persistence_service.retrieve_viewer_connection_by_framework_user(user)
+            supervisor = self.supervisor_id_service.create_supervisor(connection, inbound_identity_token)
+            self.persistence_service.save_supervisor(supervisor)
+        
+        return supervisor.supervisor_id
+        
 
     def start_creating_supervisor_id(self, session):
         flow = self._create_flow(session)

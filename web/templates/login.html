@@ -7,16 +7,13 @@
 <body>
 	<h1>Snap Screen&trade; Supervisor</h1>
 	
-	<p>
-		<a href="/accounts/logout/">Logout</a>
-	</p>
-
+	<p>The current version requires the supervisor to have a Dropbox account. It is quick and easy to get one for free if you don't have one already.</p>
+	
+	<a href="{% url 'social:begin' 'dropbox-oauth2' %}?next={{ next }}">Login using Dropbox</a>
+	
 	<div>
-		Dropbox status: Connected
+		Dropbox status: Disconnected
 	</div>
-	<a href="/viewer-connection-callback/">View Supervisor ID</a>
-	<p>
-	</p>
 
 	<hr/>
 

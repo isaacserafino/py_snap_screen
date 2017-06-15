@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
 import os
+from django.conf.global_settings import DATA_UPLOAD_MAX_MEMORY_SIZE,\
+    DATA_UPLOAD_MAX_NUMBER_FIELDS
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,7 +133,18 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = u'/home/isaacserafino/py_snap_screen/static'
 STATIC_URL = '/static/'
 
-DROPBOX_CALLBACK_URL = "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/"
-#DROPBOX_CALLBACK_URL = "http://127.0.0.1:8000/viewer-connection-callback/"
+#DROPBOX_CALLBACK_URL = "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/"
+DROPBOX_CALLBACK_URL = "http://127.0.0.1:8000/viewer-connection-callback/"
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
+
+AUTHENTICATION_BACKENDS = (
+    # Needed because the latter uses it
+    'social_core.backends.open_id.OpenIdAuth',
+
+    'social_core.backends.dropbox.DropboxOAuth2V2'
+)
+
+LOGIN_REDIRECT_URL = '/supervisor/'
 
 from py_snap_screen.settings_local import *

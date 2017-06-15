@@ -12,15 +12,30 @@ class PersistenceService:
 
         return ViewerConnection(supervisor.active, supervisor.viewer_authentication_key)
 
+    def retrieve_viewer_connection_by_framework_user(self, user):
+        social = user.social_auth.get()
+
+        return ViewerConnection(None, social.extra_data['access_token'])
+
+    # TODO
+    def save_supervisor(self, supervisor):
+        pass
+
 
 class SupervisorIdService:
     def __init__(self, id_generator):
         self.id_generator = id_generator
 
+    # TODO: Moving to private
     def generate(self):
         value = self.id_generator.random(length=7)
 
         return SupervisorId(value)
+
+    def create_supervisor(self, viewer_connection, inbound_identity_token):
+        supervisor_id = self.generate()
+
+        return SupervisorConcept(True, viewer_connection, inbound_identity_token, supervisor_id)
 
 
 class ViewerConnectionService:
@@ -63,11 +78,16 @@ class Activity:
         self.filename = filename
         self.image = image
 
+class SupervisorConcept:
+    def __init__(self, active, viewer_connection, inbound_identity_token, supervisor_id):
+        pass
+
 class SupervisorId:
     def __init__(self, value):
         self.value = value
 
 class ViewerConnection:
     def __init__(self, active, authorization_token):
+        # TODO: Moving to "SupervisorConcept"
         self.active = active
         self.authorization_token = authorization_token
