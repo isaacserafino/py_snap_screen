@@ -35,10 +35,11 @@ def save_user_profile(sender, instance, **kwargs):
 
 @receiver(post_save, sender=UserSocialAuth)
 def save_user(sender, instance, **kwargs):
-    supervisor = instance.user.supervisor
-    supervisor.viewer_authentication_key=instance.extra_data['access_token']
-
-    supervisor.save()
+    if 'access_token' in instance.extra_data:
+        supervisor = instance.user.supervisor
+        supervisor.viewer_authentication_key=instance.extra_data['access_token']
+    
+        supervisor.save()
 
 
 class CoreServiceFactory:
