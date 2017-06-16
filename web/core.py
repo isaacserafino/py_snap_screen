@@ -10,6 +10,7 @@ from web.models import PersistenceService
 from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
 from web.models import ViewerService
+from social_django.models import UserSocialAuth
 
 # Persistence Model
 class Supervisor(models.Model):
@@ -29,10 +30,15 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    social = instance.social_auth.get()
-    instance.supervisor.viewer_authentication_key=social.extra_data['access_token']
-
     instance.supervisor.save()
+
+
+@receiver(post_save, sender=UserSocialAuth)
+def save_user(sender, instance, **kwargs):
+    supervisor = instance.user.supervisor
+    supervisor.viewer_authentication_key=instance.extra_data['access_token']
+
+    supervisor.save()
 
 
 class CoreServiceFactory:
