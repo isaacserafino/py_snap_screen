@@ -61,7 +61,7 @@ class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         supervisor_id = administration_service.retrieve_supervisor_id(request.user)
 
-        return render(request, self.template_name, {'supervisor_id': supervisor_id.value})
+        return render(request, self.template_name, {'supervisor_id': supervisor_id})
 
 
 # Business Services
@@ -82,20 +82,10 @@ class AdministrationService:
 
         self.persistence_service.save_viewer_connection(connection, supervisor_id)
 
-        return supervisor_id
+        return supervisor_id       
 
-    # TODO
-    def retrieve_supervisor_id(self, user):
-        inbound_identity_token = user.id
-        supervisor = self.persistence_service.retrieve_supervisor_by_inbound_identity_token(inbound_identity_token)
-
-        if supervisor is None:
-            connection = self.persistence_service.retrieve_viewer_connection_by_framework_user(user)
-            supervisor = self.supervisor_id_service.create_supervisor(connection, inbound_identity_token)
-            self.persistence_service.save_supervisor(supervisor)
-        
-        return supervisor.supervisor_id
-        
+    def retrieve_supervisor_id(self, framework_user):
+        return SupervisorId(framework_user.supervisor.supervisor_id)
 
     def start_creating_supervisor_id(self, session):
         flow = self._create_flow(session)

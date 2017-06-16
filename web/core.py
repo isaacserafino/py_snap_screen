@@ -1,4 +1,7 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import dropbox
 import shortuuid
@@ -11,8 +14,25 @@ from web.models import ViewerService
 # Persistence Model
 class Supervisor(models.Model):
     active = models.BooleanField(default=True)
+    inbound_identity_token = models.OneToOneField(User, on_delete=models.CASCADE)
     supervisor_id = models.CharField(max_length=40, unique=True)
     viewer_authentication_key = models.CharField(max_length=80)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        supervisor_id = shortuuid.ShortUUID().random(length=7)
+
+        Supervisor.objects.create(active=True, inbound_identity_token=instance, supervisor_id=supervisor_id)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    social = instance.social_auth.get()
+    instance.supervisor.viewer_authentication_key=social.extra_data['access_token']
+
+    instance.supervisor.save()
 
 
 class CoreServiceFactory:
