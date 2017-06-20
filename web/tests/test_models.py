@@ -1,3 +1,4 @@
+import datetime
 from unittest import TestCase
 from unittest import mock
 
@@ -5,7 +6,7 @@ import dropbox
 import shortuuid
 
 from web import core
-from web.models import Activity
+from web.models import MonthlyLimitService
 from web.models import PersistenceService
 from web.models import SupervisorId
 from web.models import SupervisorIdService
@@ -14,6 +15,25 @@ from web.models import ViewerConnectionService
 from web.models import ViewerService
 from web.tests import stubs
 
+class MonthlyLimitServiceTest(TestCase):
+    def setUp(self):
+        self.candidate = mock_factory.createMonthlyLimitService()
+
+    def test_retrieve_current_month(self):
+        mock_factory.mock_monthly_limit_service.today.return_value = stubs.TODAY
+
+        actual_month = self.candidate.retrieve_current_month()
+
+        self.assertEqual(stubs.MONTH, actual_month)
+
+    def test_determine_whether_current_date_before(self):
+        mock_factory.mock_monthly_limit_service.today.return_value = stubs.TODAY
+
+        actual_determination = self.candidate.determine_whether_current_date_before(stubs.PREMIUM_EDITION_EXPIRATION_DATE)
+
+        self.assertTrue(actual_determination)
+
+
 class PersistenceServiceTest(TestCase):
     def setUp(self):
         self.candidate = mock_factory.createPersistenceService()
@@ -21,16 +41,36 @@ class PersistenceServiceTest(TestCase):
     def test_save_viewer_connection(self):
         self.candidate.save_viewer_connection(stubs.CONNECTION, stubs.SUPERVISOR_ID)
         
-        mock_factory.mock_persistence_service.assert_called_once_with(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
-        mock_factory.mock_persistence_service.return_value.save.assert_called_once_with()
+        mock_factory.mock_persistence_service2.assert_called_once_with(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.return_value.save.assert_called_once_with()
 
     def test_retrieve_viewer_connection(self):
-        mock_factory.mock_persistence_service.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
 
         actual_connection = self.candidate.retrieve_viewer_connection(stubs.SUPERVISOR_ID)
 
         self.assertEqual(stubs.ACTIVE, actual_connection.active)
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_connection.authorization_token)
+
+    def test_retrieve_supervisor_by_inbound_identity_token(self):
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+
+        actual_supervisor = self.candidate.retrieve_supervisor_by_inbound_identity_token(stubs.INBOUND_IDENTITY_TOKEN)
+
+        self.assertEqual(stubs.ACTIVE, actual_supervisor.active)
+        self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_supervisor.premium_expiration)
+        self.assertEqual(stubs.SUPERVISOR_ID_VALUE, actual_supervisor.supervisor_id.value)
+        self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_supervisor.viewer_connection.authorization_token)
+
+    # TODO:
+    def test_retrieve_activity_count(self):
+        actual_count = self.candidate.retrieve_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
+
+        self.assertEqual(stubs.ACTIVITY_COUNT, actual_count)
+
+    # TODO:
+    def test_increment_activity_count(self):
+        self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
 
 
 class SupervisorIdServiceTest(TestCase):
@@ -85,11 +125,18 @@ class ViewerServiceTest(TestCase):
         mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(stubs.CONTENTS, stubs.CORE_FILENAME)
 
 
-class MockCoreServiceFactory: 
+class MockCoreServiceFactory:
+    @mock.patch("datetime.date", autospec=True)
+    def createMonthlyLimitService(self, mock_core):
+        self.mock_monthly_limit_service = mock_core
+        return MonthlyLimitService(datetime.date)
+
     @mock.patch("web.core.Supervisor", autospec=True)
-    def createPersistenceService(self, mock_core):
+    @mock.patch("web.core.Activity", autospec=True)
+    def createPersistenceService(self, mock_core, mock_core2):
         self.mock_persistence_service = mock_core
-        return PersistenceService(core.Supervisor)
+        self.mock_persistence_service2 = mock_core2
+        return PersistenceService(core.Activity, core.Supervisor)
 
     @mock.patch("shortuuid.ShortUUID", autospec=True)
     def createSupervisorIdService(self, mock_core):

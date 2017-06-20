@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from py_snap_screen import settings
 from web import core
-from web.models import Activity
 from web.models import PersistenceService
 from web.models import SupervisorId
 from web.models import SupervisorIdService
@@ -21,14 +20,14 @@ class PersistenceServiceTest(TestCase):
     def test_save_viewer_connection(self):
         self.candidate.save_viewer_connection(stubs.CONNECTION, stubs.SUPERVISOR_ID)
         
-        supervisor = core_service_factory.core_persistence_service.objects.get(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+        supervisor = core_service_factory.core_persistence_service2.objects.get(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
 
         self.assertEqual(stubs.ACTIVE, supervisor.active)
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, supervisor.viewer_authentication_key)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, supervisor.supervisor_id)
 
     def test_retrieve_viewer_connection(self):
-        supervisor = core_service_factory.core_persistence_service(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        supervisor = core_service_factory.core_persistence_service2(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
         supervisor.save()
 
         actual_connection = self.candidate.retrieve_viewer_connection(stubs.SUPERVISOR_ID)

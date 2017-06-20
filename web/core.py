@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -6,18 +7,26 @@ from django.dispatch import receiver
 import dropbox
 import shortuuid
 
+from web.models import MonthlyLimitService
 from web.models import PersistenceService
 from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
 from web.models import ViewerService
 from social_django.models import UserSocialAuth
 
-# Persistence Model
+# Persistence Models
 class Supervisor(models.Model):
     active = models.BooleanField(default=True)
+    premium_expiration = models.DateField(blank=True, null=True)
     inbound_identity_token = models.OneToOneField(User, on_delete=models.CASCADE)
     supervisor_id = models.CharField(max_length=40, unique=True)
     viewer_authentication_key = models.CharField(max_length=80)
+
+
+class Activity(models.Model):
+    supervisor = models.ForeignKey(Supervisor, on_delete=models.CASCADE)
+    month = models.DateField
+    activity_count = models.IntegerField(default=0)
 
 
 @receiver(post_save, sender=User)
@@ -43,13 +52,18 @@ def save_user(sender, instance, **kwargs):
 
 
 class CoreServiceFactory:
-    core_persistence_service = Supervisor
+    core_monthly_limit_service = datetime.date
+    core_persistence_service = Activity
+    core_persistence_service2 = Supervisor
     core_supervisor_id_service = shortuuid.ShortUUID()
     core_viewer_service = dropbox.Dropbox
     core_viewer_connection_service = dropbox.DropboxOAuth2Flow
     
+    def createMonthlyLimitService(self):
+        return MonthlyLimitService(self.core_monthly_limit_service)
+    
     def createPersistenceService(self):
-        return PersistenceService(self.core_persistence_service)
+        return PersistenceService(self.core_persistence_service, self.core_persistence_service2)
 
     def createSupervisorIdService(self):
         return SupervisorIdService(self.core_supervisor_id_service)

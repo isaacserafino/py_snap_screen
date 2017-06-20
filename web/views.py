@@ -7,8 +7,7 @@ from django.views.generic import TemplateView
 
 from py_snap_screen import settings
 from web import core
-from web.models import Activity
-from web.models import PersistenceService
+from web.models import Snap
 from web.models import SupervisorId
 from web.models import SupervisorIdService
 from web.models import ViewerConnection
@@ -47,7 +46,7 @@ class MonitoringView(View):
         # TODO: Use chunks?
         activity_value = file.read()
 
-        activity = Activity(filename, activity_value)
+        activity = Snap(filename, activity_value)
         supervisor_id = SupervisorId(supervisor_id_value)
 
         monitoring_service.track_activity(activity, supervisor_id)
@@ -84,6 +83,9 @@ class AdministrationService:
 
         return supervisor_id       
 
+    def retrieve_supervisor(self, inbound_identity_token):
+        return self.persistence_service.retrieve_supervisor_by_inbound_identity_token(inbound_identity_token)
+
     def retrieve_supervisor_id(self, framework_user):
         return SupervisorId(framework_user.supervisor.supervisor_id)
 
@@ -110,6 +112,25 @@ class MonitoringService:
                 self.viewer_service.send_activity(activity, connection)
 
 
+class SupervisorStatusService:
+    LIMIT = 1000
+
+    def __init__(self, monthly_limit_service, persistence_service):
+        self.monthly_limit_service = monthly_limit_service
+        self.persistence_service = persistence_service
+
+    def determine_whether_premium_edition_active(self, supervisor):
+        expiration = supervisor.premium_expiration
+        return expiration is not None and self.monthly_limit_service.determine_whether_current_date_before(expiration)
+
+    def determine_whether_activity_within_standard_edition_limit(self, supervisor):
+        activity_month = self.monthly_limit_service.retrieve_current_month() 
+
+        snaps = self.persistence_service.retrieve_activity_count(supervisor.supervisor_id, activity_month)
+
+        return snaps <= self.LIMIT
+
+
 factory = core.CoreServiceFactory()
 viewer_service = factory.createViewerService()
 persistence_service = factory.createPersistenceService()
@@ -118,3 +139,6 @@ monitoring_service = MonitoringService(persistence_service, viewer_service)
 supervisor_id_service = factory.createSupervisorIdService()
 viewer_connection_service = factory.createViewerConnectionService()
 administration_service = AdministrationService(persistence_service, supervisor_id_service, viewer_connection_service)
+
+monthly_limit_service = factory.createMonthlyLimitService()
+supervisor_status_service = SupervisorStatusService(monthly_limit_service, persistence_service)
