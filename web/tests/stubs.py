@@ -5,6 +5,7 @@ from web.models import SupervisorStatus
 from datetime import date
 
 ACTIVITY_COUNT = 500
+INCREMENTED_ACTIVITY_COUNT = 501
 
 AUTHORIZATION_URL = "https://www.example.com/stub_authorization_url"
 CALLBACK_URL = "https://www.example.com/stub_callback_url"

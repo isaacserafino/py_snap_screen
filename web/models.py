@@ -1,3 +1,5 @@
+from django.db.models import F
+
 # Core Services
 class MonthlyLimitService:
     def __init__(self, date):
@@ -35,12 +37,20 @@ class PersistenceService:
         viewer_connection = ViewerConnection(supervisor.active, supervisor.viewer_authentication_key)
         return SupervisorStatus(supervisor.active, supervisor.premium_expiration, supervisor_id, viewer_connection)
 
-    # TODO:
     def retrieve_activity_count(self, supervisor_id, activity_month):
-        pass
+        try:
+            activity = self.activity_model.objects.get(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
+            
+            return activity.activity_count
+
+        except self.activity_model.DoesNotExist:
+            return 0
 
     def increment_activity_count(self, supervisor_id, activity_month):
-        pass
+        activity, created = self.activity_model.objects.get_or_create(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month, defaults={'activity_count':1})
+
+        if not created:
+                activity.update(activity_count=F('activity_count') + 1)
 
 
 class SupervisorIdService:
