@@ -19,9 +19,13 @@ class AdministrationView(LoginRequiredMixin, TemplateView):
     template_name = "supervisor.html"
 
     def get(self, request, *args, **kwargs):
-        authorization_url = '' #administration_service.start_creating_supervisor_id(request.session);
+        supervisor_status = administration_service.retrieve_supervisor(request.user.id);
+        premium_edition_active = supervisor_status_service.determine_whether_premium_edition_active(supervisor_status)
+        activity_within_standard_edition_limit = supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor_status)
 
-        return render(request, self.template_name, {'authorization_url': authorization_url})
+        model = {'supervisor_status':supervisor_status, 'premium_edition_active': premium_edition_active, 'activity_within_standard_edition_limit': activity_within_standard_edition_limit}
+
+        return render(request, self.template_name, model)
 
 
 class LoginView(TemplateView):
@@ -107,6 +111,9 @@ class MonitoringService:
         if supervisor_id is None or activity is None: return
 
         connection = self.persistence_service.retrieve_viewer_connection(supervisor_id)
+
+        # TODO: call SupervisorStatusService
+        
 
         if connection is not None and connection.active:
                 self.viewer_service.send_activity(activity, connection)

@@ -25,7 +25,7 @@ class Supervisor(models.Model):
 
 class Activity(models.Model):
     supervisor = models.ForeignKey(Supervisor, on_delete=models.CASCADE)
-    month = models.DateField
+    activity_month = models.DateField()
     activity_count = models.IntegerField(default=0)
 
 

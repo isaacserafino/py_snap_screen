@@ -7,12 +7,18 @@
 <body>
 	<h1>Snap Screen&trade; Supervisor</h1>
 
-	<p>(v1.3.0) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
-	<!-- 
-	<p>Snaps so far this month: </p>
-	<p>Activate Premium Edition - No monthly snap limit. $5 per month</p>
-	<p>Premium Edition Active - No monthly snap limit. $5 per month. Expires: </p>
-	 -->
+	{% if premium_edition_active %}
+		<p>Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
+	{% else %}
+		<p>(v1.3.0) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
+		<p>
+			{% if activity_within_standard_edition_limit %}Active{% else %}Deactivated because limit reached.{% endif %}
+		</p>
+		<!-- 
+		<p>Snaps so far this month: </p>
+		-->
+		<p><a href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No monthly snap limit. Includes email support. $5 per month</p>
+	{% endif %}
 
 	<p>
 		<a href="/accounts/logout/?next=/supervisor/">Logout</a>
@@ -29,10 +35,13 @@
 
 	<p></p>
 
-	<!-- 
-	<p>Snaps so far this month: </p>
-	 -->
+	{% if premium_edition_active %}
+		<p><a href="https://goo.gl/forms/SJIf8QeCBGxoS4nP2">Contact for Help</a></p>
 
+		<!-- 
+		<p>Snaps so far this month: </p>
+		 -->
+	{% endif %}
 	<hr/>
 
 	<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
