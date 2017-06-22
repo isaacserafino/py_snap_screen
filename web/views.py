@@ -119,8 +119,10 @@ class MonitoringService:
             if not activity_within_standard_edition_limit: return 
 
         connection = supervisor.viewer_connection
-        if connection is not None:
-                self.viewer_service.send_activity(activity, connection)
+        if connection is None: return
+
+        self.viewer_service.send_activity(activity, connection)
+        supervisor_status_service.increment_activity_count(supervisor_id)
 
 
 class SupervisorStatusService:
@@ -140,6 +142,10 @@ class SupervisorStatusService:
         snaps = self.persistence_service.retrieve_activity_count(supervisor.supervisor_id, activity_month)
 
         return snaps < self.LIMIT
+
+    def increment_activity_count(self, supervisor_id):
+        activity_month = self.monthly_limit_service.retrieve_current_month()
+        self.persistence_service.increment_activity_count(supervisor_id, activity_month)
 
 
 factory = core.CoreServiceFactory()

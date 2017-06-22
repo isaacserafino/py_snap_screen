@@ -17,9 +17,8 @@ from web.views import MonitoringView
 from web.views import SupervisorStatusService
 from web.views import ViewerConnectionCallbackView
 
-# TODO: (IMS) Create your tests here.
-
 # View Tests
+# TODO: Implement
 class AdministrationViewTest(TestCase):
     def setUp(self):
         pass
@@ -135,6 +134,13 @@ class SupervisorStatusServiceTest(TestCase):
         self.mock_persistence_service.retrieve_activity_count.assert_called_once_with(stubs.SUPERVISOR_ID, stubs.MONTH)
         self.assertTrue(actual_determination)
 
+    def test_increment_activity_count(self):
+        self.mock_monthly_limit_service.retrieve_current_month.return_value = stubs.MONTH
+
+        self.candidate.increment_activity_count(stubs.SUPERVISOR_ID)
+
+        self.mock_persistence_service.increment_activity_count.assert_called_once_with(stubs.SUPERVISOR_ID, stubs.MONTH)
+
 
 class MonitoringServiceTest(TestCase):
     @mock.patch("web.views.viewer_service", autospec=True)
@@ -144,7 +150,6 @@ class MonitoringServiceTest(TestCase):
         self.mock_viewer_service = mock_viewer_service
         self.candidate = MonitoringService(views.persistence_service, views.viewer_service)
 
-    # TODO: Finish
     @mock.patch("web.views.supervisor_status_service", autospec=True)
     def test_track_activity(self, mock_supervisor_status_service):
         self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.return_value = stubs.SUPERVISOR
@@ -157,3 +162,4 @@ class MonitoringServiceTest(TestCase):
         mock_supervisor_status_service.determine_whether_activity_within_standard_edition_limit.assert_called_once_with(stubs.SUPERVISOR)
         self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.assert_called_once_with(stubs.SUPERVISOR_ID)
         self.mock_viewer_service.send_activity.assert_called_once_with(stubs.ACTIVITY, stubs.CONNECTION)
+        mock_supervisor_status_service.increment_activity_count.assert_called_once_with(stubs.SUPERVISOR_ID)
