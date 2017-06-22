@@ -29,14 +29,21 @@ class MonitoringViewTest(TestCase):
     def setUp(self):
         self.candidate = MonitoringView()
 
-    # TODO: Finish
     @mock.patch("web.views.monitoring_service", autospec=True)
     def test_post(self, mock_monitoring_service):
-        STUB_FILE = mock.MagicMock(name=stubs.FILENAME, read=lambda: stubs.CONTENTS)
+        STUB_FILE = mock.MagicMock(read=lambda: stubs.CONTENTS)
+        # Must be assigned afterward because otherwise MagicMock itself provides a conflicting "name".
+        STUB_FILE.name = stubs.FILENAME
+
         STUB_REQUEST = mock.MagicMock(POST={'supervisor_id':stubs.SUPERVISOR_ID_VALUE}, FILES={'activity':STUB_FILE})
         self.candidate.dispatch(STUB_REQUEST);
 
         mock_monitoring_service.track_activity.assert_called_once()
+        (captured_snap, captured_supervisor_id), _ = mock_monitoring_service.track_activity.call_args
+
+        self.assertEqual(stubs.FILENAME, captured_snap.filename)
+        self.assertEqual(stubs.CONTENTS, captured_snap.image)
+        self.assertEqual(stubs.SUPERVISOR_ID_VALUE, captured_supervisor_id.value)
 
 
 class ViewerConnectionCallbackViewTest(TestCase):
@@ -130,5 +137,23 @@ class SupervisorStatusServiceTest(TestCase):
 
 
 class MonitoringServiceTest(TestCase):
-    def setUp(self):
-        pass
+    @mock.patch("web.views.viewer_service", autospec=True)
+    @mock.patch("web.views.persistence_service", autospec=True)
+    def setUp(self, mock_persistence_service, mock_viewer_service):
+        self.mock_persistence_service = mock_persistence_service
+        self.mock_viewer_service = mock_viewer_service
+        self.candidate = MonitoringService(views.persistence_service, views.viewer_service)
+
+    # TODO: Finish
+    @mock.patch("web.views.supervisor_status_service", autospec=True)
+    def test_track_activity(self, mock_supervisor_status_service):
+        self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.return_value = stubs.SUPERVISOR
+        mock_supervisor_status_service.determine_whether_premium_edition_active.return_value = False
+        mock_supervisor_status_service.determine_whether_activity_within_standard_edition_limit.return_value = True
+
+        self.candidate.track_activity(stubs.ACTIVITY, stubs.SUPERVISOR_ID)
+
+        mock_supervisor_status_service.determine_whether_premium_edition_active.assert_called_once_with(stubs.SUPERVISOR)
+        mock_supervisor_status_service.determine_whether_activity_within_standard_edition_limit.assert_called_once_with(stubs.SUPERVISOR)
+        self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.assert_called_once_with(stubs.SUPERVISOR_ID)
+        self.mock_viewer_service.send_activity.assert_called_once_with(stubs.ACTIVITY, stubs.CONNECTION)

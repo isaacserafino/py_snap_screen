@@ -85,7 +85,7 @@ class AdministrationService:
 
         self.persistence_service.save_viewer_connection(connection, supervisor_id)
 
-        return supervisor_id       
+        return supervisor_id
 
     def retrieve_supervisor(self, inbound_identity_token):
         return self.persistence_service.retrieve_supervisor_by_inbound_identity_token(inbound_identity_token)
@@ -110,12 +110,16 @@ class MonitoringService:
     def track_activity(self, activity, supervisor_id):
         if supervisor_id is None or activity is None: return
 
-        connection = self.persistence_service.retrieve_viewer_connection(supervisor_id)
+        supervisor = self.persistence_service.retrieve_supervisor_status_by_supervisor_id(supervisor_id)
+        if supervisor is None or not supervisor.active: return
 
-        # TODO: call SupervisorStatusService
-        
+        premium_edition_active = supervisor_status_service.determine_whether_premium_edition_active(supervisor)
+        if not premium_edition_active:
+            activity_within_standard_edition_limit = supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor)
+            if not activity_within_standard_edition_limit: return 
 
-        if connection is not None and connection.active:
+        connection = supervisor.viewer_connection
+        if connection is not None:
                 self.viewer_service.send_activity(activity, connection)
 
 

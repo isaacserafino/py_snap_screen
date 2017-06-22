@@ -57,6 +57,18 @@ class PersistenceServiceTest(TestCase):
 
         actual_supervisor = self.candidate.retrieve_supervisor_by_inbound_identity_token(stubs.INBOUND_IDENTITY_TOKEN)
 
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(inbound_identity_token=stubs.INBOUND_IDENTITY_TOKEN)
+        self.assertEqual(stubs.ACTIVE, actual_supervisor.active)
+        self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_supervisor.premium_expiration)
+        self.assertEqual(stubs.SUPERVISOR_ID_VALUE, actual_supervisor.supervisor_id.value)
+        self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_supervisor.viewer_connection.authorization_token)
+
+    def test_retrieve_supervisor_status_by_supervisor_id(self):
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+
+        actual_supervisor = self.candidate.retrieve_supervisor_status_by_supervisor_id(stubs.SUPERVISOR_ID)
+
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
         self.assertEqual(stubs.ACTIVE, actual_supervisor.active)
         self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_supervisor.premium_expiration)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, actual_supervisor.supervisor_id.value)

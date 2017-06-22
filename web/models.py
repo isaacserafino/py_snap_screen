@@ -37,6 +37,12 @@ class PersistenceService:
         viewer_connection = ViewerConnection(supervisor.active, supervisor.viewer_authentication_key)
         return SupervisorStatus(supervisor.active, supervisor.premium_expiration, supervisor_id, viewer_connection)
 
+    def retrieve_supervisor_status_by_supervisor_id(self, supervisor_id):
+        supervisor = self.supervisor_model.objects.get(supervisor_id=supervisor_id.value)
+
+        viewer_connection = ViewerConnection(supervisor.active, supervisor.viewer_authentication_key)
+        return SupervisorStatus(supervisor.active, supervisor.premium_expiration, supervisor_id, viewer_connection)
+
     def retrieve_activity_count(self, supervisor_id, activity_month):
         try:
             activity = self.activity_model.objects.get(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
