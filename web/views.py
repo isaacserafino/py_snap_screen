@@ -135,7 +135,7 @@ class SupervisorStatusService:
 
         snaps = self.persistence_service.retrieve_activity_count(supervisor.supervisor_id, activity_month)
 
-        return snaps <= self.LIMIT
+        return snaps < self.LIMIT
 
 
 factory = core.CoreServiceFactory()
