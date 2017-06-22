@@ -5,12 +5,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-	<h1>Snap Screen&trade; Supervisor</h1>
+	<h1>Snap Screen&trade; Supervisor Dashboard</h1>
 
 	{% if premium_edition_active %}
-		<p>Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
+		<p>(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
 	{% else %}
-		<p>(v1.3.0) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
+		<p>(v1.3.1) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
 		<p>
 			{% if activity_within_standard_edition_limit %}Active{% else %}Deactivated because limit reached.{% endif %}
 		</p>
