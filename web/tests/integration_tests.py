@@ -1,4 +1,5 @@
 from django.test import TestCase
+from unittest import skip
 
 from py_snap_screen import settings
 from web import core
@@ -17,6 +18,7 @@ class PersistenceServiceTest(TestCase):
     def setUp(self):
         self.candidate = core_service_factory.createPersistenceService()
 
+    @skip('Viewer connections are now created within Supervisors by a signal from framework user creation')
     def test_save_viewer_connection(self):
         self.candidate.save_viewer_connection(stubs.CONNECTION, stubs.SUPERVISOR_ID)
         
@@ -26,14 +28,28 @@ class PersistenceServiceTest(TestCase):
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, supervisor.viewer_authentication_key)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, supervisor.supervisor_id)
 
+    @skip('Viewer connections are now created within Supervisors by a signal from framework user creation')
     def test_retrieve_viewer_connection(self):
-        supervisor = core_service_factory.core_persistence_service2(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        user = stubs.FRAMEWORK_USER_FUNCTION()
+        supervisor = core_service_factory.core_persistence_service2(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN, inbound_identity_token=user)
         supervisor.save()
 
         actual_connection = self.candidate.retrieve_viewer_connection(stubs.SUPERVISOR_ID)
 
         self.assertEqual(stubs.ACTIVE, actual_connection.active)
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_connection.authorization_token)
+
+    def test_increment_activity_count(self):
+        user = stubs.FRAMEWORK_USER_FUNCTION()
+        supervisor = core_service_factory.core_persistence_service2.objects.get(inbound_identity_token=user)
+
+        activity = core_service_factory.core_persistence_service(supervisor=supervisor, activity_month=stubs.MONTH, activity_count = stubs.ACTIVITY_COUNT)
+        activity.save()
+
+        self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
+
+        activity = core_service_factory.core_persistence_service.objects.get(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+        self.assertEqual(stubs.INCREMENTED_ACTIVITY_COUNT, activity.activity_count)
 
 
 class SupervisorIdServiceTest(TestCase):

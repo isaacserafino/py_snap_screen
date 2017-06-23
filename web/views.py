@@ -7,12 +7,16 @@ from django.views.generic import TemplateView
 
 from py_snap_screen import settings
 from web import core
+from web.models import MonthlyLimitService
+from web.models import PersistenceService
 from web.models import Snap
 from web.models import SupervisorId
 from web.models import SupervisorIdService
+from web.models import SupervisorStatus
 from web.models import ViewerConnection
 from web.models import ViewerConnectionService
 from web.models import ViewerService
+from dropbox.oauth import DropboxOAuth2Flow
 
 # Views
 class AdministrationView(LoginRequiredMixin, TemplateView):
@@ -33,6 +37,7 @@ class LoginView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         next = request.GET.get('next', '/')
+        ': :type next: str'
 
         return render(request, self.template_name, {'next': next})
 
@@ -44,11 +49,16 @@ class MonitoringView(View):
                 return View.dispatch(self, request, *args, **kwargs)
 
         supervisor_id_value = request.POST["supervisor_id"]
+        ': :type supervisor_id_value: str'
+
         file = request.FILES["activity"]
 
         filename = file.name
+        ': :type filename: str'
+
         # TODO: Use chunks?
         activity_value = file.read()
+        ': :type activity_value: bytes'
 
         activity = Snap(filename, activity_value)
         supervisor_id = SupervisorId(supervisor_id_value)
@@ -69,12 +79,12 @@ class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
 
 # Business Services
 class AdministrationService:
-    def __init__(self, persistence_service, supervisor_id_service, viewer_connection_service):
+    def __init__(self, persistence_service: PersistenceService, supervisor_id_service: SupervisorIdService, viewer_connection_service: ViewerConnectionService):
         self.persistence_service = persistence_service
         self.supervisor_id_service = supervisor_id_service
         self.viewer_connection_service = viewer_connection_service
 
-    def finish_creating_supervisor_id(self, callback_parameters, session):
+    def finish_creating_supervisor_id(self, callback_parameters, session: dict):
         flow = self._create_flow(session)
 
         connection = self.viewer_connection_service.finish_creating_connection(callback_parameters, flow)
@@ -93,21 +103,21 @@ class AdministrationService:
     def retrieve_supervisor_id(self, framework_user):
         return SupervisorId(framework_user.supervisor.supervisor_id)
 
-    def start_creating_supervisor_id(self, session):
+    def start_creating_supervisor_id(self, session: dict):
         flow = self._create_flow(session)
 
         return self.viewer_connection_service.start_creating_connection(flow)
 
-    def _create_flow(self, session):
+    def _create_flow(self, session: dict) -> DropboxOAuth2Flow:
         return self.viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
 
 
 class MonitoringService:
-    def __init__(self, persistence_service, viewer_service):
+    def __init__(self, persistence_service: PersistenceService, viewer_service: ViewerService):
         self.persistence_service = persistence_service
         self.viewer_service = viewer_service
 
-    def track_activity(self, activity, supervisor_id):
+    def track_activity(self, activity: Snap, supervisor_id: SupervisorId):
         if supervisor_id is None or activity is None: return
 
         supervisor = self.persistence_service.retrieve_supervisor_status_by_supervisor_id(supervisor_id)
@@ -116,7 +126,7 @@ class MonitoringService:
         premium_edition_active = supervisor_status_service.determine_whether_premium_edition_active(supervisor)
         if not premium_edition_active:
             activity_within_standard_edition_limit = supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor)
-            if not activity_within_standard_edition_limit: return 
+            if not activity_within_standard_edition_limit: return
 
         connection = supervisor.viewer_connection
         if connection is None: return
@@ -128,22 +138,22 @@ class MonitoringService:
 class SupervisorStatusService:
     LIMIT = 1000
 
-    def __init__(self, monthly_limit_service, persistence_service):
+    def __init__(self, monthly_limit_service: MonthlyLimitService, persistence_service: PersistenceService):
         self.monthly_limit_service = monthly_limit_service
         self.persistence_service = persistence_service
 
-    def determine_whether_premium_edition_active(self, supervisor):
+    def determine_whether_premium_edition_active(self, supervisor: SupervisorStatus) -> bool:
         expiration = supervisor.premium_expiration
         return expiration is not None and self.monthly_limit_service.determine_whether_current_date_before(expiration)
 
-    def determine_whether_activity_within_standard_edition_limit(self, supervisor):
+    def determine_whether_activity_within_standard_edition_limit(self, supervisor: SupervisorStatus) -> bool:
         activity_month = self.monthly_limit_service.retrieve_current_month() 
 
         snaps = self.persistence_service.retrieve_activity_count(supervisor.supervisor_id, activity_month)
 
         return snaps < self.LIMIT
 
-    def increment_activity_count(self, supervisor_id):
+    def increment_activity_count(self, supervisor_id: SupervisorId) -> None:
         activity_month = self.monthly_limit_service.retrieve_current_month()
         self.persistence_service.increment_activity_count(supervisor_id, activity_month)
 

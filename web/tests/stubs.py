@@ -1,8 +1,10 @@
+from datetime import date
+from django.contrib.auth.models import User
+
 from web.models import Snap
 from web.models import ViewerConnection
 from web.models import SupervisorId
 from web.models import SupervisorStatus
-from datetime import date
 
 ACTIVITY_COUNT = 500
 INCREMENTED_ACTIVITY_COUNT = 501
@@ -26,6 +28,7 @@ SECRET = "stub secret"
 SESSION = {}
 
 INBOUND_IDENTITY_TOKEN = "johndoe"
+FRAMEWORK_USER_FUNCTION = lambda: User.objects.get_or_create(username=INBOUND_IDENTITY_TOKEN)[0]
 
 MONTH = date(2012, 12, 1)
 PREMIUM_EDITION_EXPIRATION_DATE = date(2012, 12, 31)

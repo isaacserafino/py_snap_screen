@@ -30,7 +30,7 @@ class Activity(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance: User, created: bool, **kwargs):
     if created:
         supervisor_id = shortuuid.ShortUUID().random(length=7)
 
@@ -38,12 +38,12 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
+def save_user_profile(sender, instance: User, **kwargs):
     instance.supervisor.save()
 
 
 @receiver(post_save, sender=UserSocialAuth)
-def save_user(sender, instance, **kwargs):
+def save_user(sender, instance:UserSocialAuth, **kwargs):
     if 'access_token' in instance.extra_data:
         supervisor = instance.user.supervisor
         supervisor.viewer_authentication_key=instance.extra_data['access_token']
@@ -59,17 +59,17 @@ class CoreServiceFactory:
     core_viewer_service = dropbox.Dropbox
     core_viewer_connection_service = dropbox.DropboxOAuth2Flow
     
-    def createMonthlyLimitService(self):
+    def createMonthlyLimitService(self) -> MonthlyLimitService:
         return MonthlyLimitService(self.core_monthly_limit_service)
     
-    def createPersistenceService(self):
+    def createPersistenceService(self) -> PersistenceService:
         return PersistenceService(self.core_persistence_service, self.core_persistence_service2)
 
-    def createSupervisorIdService(self):
+    def createSupervisorIdService(self) -> SupervisorIdService:
         return SupervisorIdService(self.core_supervisor_id_service)
 
-    def createViewerService(self):
+    def createViewerService(self) -> ViewerService:
         return ViewerService(self.core_viewer_service)
 
-    def createViewerConnectionService(self):
+    def createViewerConnectionService(self) -> ViewerConnectionService:
         return ViewerConnectionService(self.core_viewer_connection_service)
