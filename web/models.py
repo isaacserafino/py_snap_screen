@@ -89,13 +89,12 @@ class PersistenceService:
             return 0
 
     def increment_activity_count(self, supervisor_id: SupervisorId, activity_month: date) -> None:
-        try:
-            activity = self.activity_model.objects.get(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
-            ': :type activity: Activity'
-            
+        activity = self.activity_model.objects.filter(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
+        ': :type activity: QuerySet'
+        
+        if activity:
             activity.update(activity_count = F('activity_count') + 1)
-
-        except self.activity_model.DoesNotExist:
+        else:
             supervisor = self.supervisor_model.objects.get(supervisor_id=supervisor_id.value)
             ': :type supervisor: Supervisor'
 

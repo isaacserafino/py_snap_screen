@@ -85,16 +85,28 @@ class PersistenceServiceTest(TestCase):
         self.assertEqual(stubs.ACTIVITY_COUNT, actual_count)
 
     @mock.patch('web.models.F', autospec=True)
-    def test_increment_activity_count(self, mock_f):
+    def test_increment_activity_count_existing(self, mock_f):
         mock_activity_model = mock.MagicMock()
-        mock_factory.mock_persistence_service.objects.get.return_value = mock_activity_model
+        mock_factory.mock_persistence_service.objects.filter.return_value = mock_activity_model
         mock_f.return_value = stubs.ACTIVITY_COUNT
 
         self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
 
-        mock_factory.mock_persistence_service.objects.get.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
         mock_f.assert_called_once_with('activity_count')
         mock_activity_model.update.assert_called_once_with(activity_count=stubs.INCREMENTED_ACTIVITY_COUNT)
+
+    def test_increment_activity_count_new(self):
+        mock_supervisor_model = mock.MagicMock()
+
+        mock_factory.mock_persistence_service.objects.filter.return_value = False
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock_supervisor_model
+
+        self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
+
+        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+        mock_supervisor_model.activity_set.create.assert_called_once_with(activity_month=stubs.MONTH, activity_count=1)
 
 
 class SupervisorIdServiceTest(TestCase):
