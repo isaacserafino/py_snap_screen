@@ -42,6 +42,8 @@ class PersistenceServiceTest(TestCase):
     def test_increment_activity_count(self):
         user = stubs.FRAMEWORK_USER_FUNCTION()
         supervisor = core_service_factory.core_persistence_service2.objects.get(inbound_identity_token=user)
+        supervisor.supervisor_id = stubs.SUPERVISOR_ID_VALUE
+        supervisor.save()
 
         activity = core_service_factory.core_persistence_service(supervisor=supervisor, activity_month=stubs.MONTH, activity_count = stubs.ACTIVITY_COUNT)
         activity.save()
