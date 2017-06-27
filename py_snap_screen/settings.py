@@ -19,11 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = [u'isaacserafino.pythonanywhere.com','127.0.0.1']
-
 
 # Application definition
 
@@ -131,8 +126,6 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = u'/home/isaacserafino/py_snap_screen/static'
 STATIC_URL = '/static/'
 
-#DROPBOX_CALLBACK_URL = "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/"
-DROPBOX_CALLBACK_URL = "http://127.0.0.1:8000/viewer-connection-callback/"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400
 
