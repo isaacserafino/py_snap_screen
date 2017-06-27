@@ -3,20 +3,27 @@
 <head> 
     <title>Snap Screen Supervisor Login</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'web/content.css' %}"/>
 </head>
 <body>
-	<h1>Snap Screen&trade; Supervisor Login</h1>
-
-	<p>The current version requires the supervisor to have a Dropbox account. It is quick and easy to get one for free if you don't have one already.</p>
-
-	<a href="{% url 'social:begin' 'dropbox-oauth2' %}?next=/supervisor/">Login using Dropbox</a>
-
-	<p>
-		<a href="http://www.snapscreenapp.com">More Information</a>
-	</p>
-
-	<hr/>
-
-	<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
+	<a href="http://www.snapscreenapp.com">
+		<img id="logo" width="1024" height="306" src="{% static 'web/logo2.png' %}" alt="Snap Screen App&trade;"/>
+	</a>
+	<div id="content">
+		<h1>Supervisor Login</h1>
+	
+		<p>The current version requires the supervisor to have a Dropbox account. It is quick and easy to get one for free if you don't have one already.</p>
+	
+		<a class="button" href="{% url 'social:begin' 'dropbox-oauth2' %}?next=/supervisor/">Login using Dropbox</a>
+	
+		<p>
+			<a class="button" href="http://www.snapscreenapp.com">More Information</a>
+		</p>
+	
+		<hr/>
+	
+		<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
+	</div>		
 </body>
 </html>

@@ -1,49 +1,64 @@
 <!DOCTYPE HTML>
 <html>
-<head> 
+<head>
     <title>Snap Screen Supervisor</title> 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'web/content.css' %}"/>
 </head>
 <body>
-	<h1>Snap Screen&trade; Supervisor Dashboard</h1>
-
-	{% if premium_edition_active %}
-		<p>(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
-	{% else %}
-		<p>(v1.3.1) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
+	<a href="http://www.snapscreenapp.com">
+		<img id="logo" width="1024" height="306" src="{% static 'web/logo2.png' %}" alt="Snap Screen App&trade;"/>
+	</a>
+	<div id="content">
+		<h1>Supervisor Dashboard</h1>
+	
+		{% if premium_edition_active %}
+			<p>(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
+		{% else %}
+			<p>(v1.3.1) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
+			{% if activity_within_standard_edition_limit %}
+				<p>Status: Active</p>
+			{% else %}
+				<p class="warning">Status: Deactivated because limit reached.</p>
+			{% endif %}
+			<!-- 
+			<p>Snaps so far this month: </p>
+			-->
+			<p><a class="button" href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No monthly snap limit. Includes email support. $5 per month</p>
+		{% endif %}
+	
 		<p>
-			{% if activity_within_standard_edition_limit %}Active{% else %}Deactivated because limit reached.{% endif %}
+			<a class="button" href="/accounts/logout/?next=/supervisor/">Logout</a>
 		</p>
-		<!-- 
-		<p>Snaps so far this month: </p>
-		-->
-		<p><a href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No monthly snap limit. Includes email support. $5 per month</p>
-	{% endif %}
-
-	<p>
-		<a href="/accounts/logout/?next=/supervisor/">Logout</a>
-	</p>
-
-	<p>
-		<a href="/viewer-connection-callback/">View Supervisor ID</a> (Keep secret)
-	</p>
-
-	<div>
-		Dropbox status: Connected
+	
+		<p>
+			<a class="button" href="/viewer-connection-callback/">View Supervisor ID</a> (Keep secret)
+		</p>
+	
+		<div>
+			Dropbox status: Connected
+		</div>
+		<a class="button" href="https://www.dropbox.com/home/Apps/Snap Screen App%E2%84%A2">View Screenshots in Dropbox</a>
+	
+		<p>
+			<a class="button" href="https://sourceforge.net/projects/witl">Download App for Device to Supervise</a>
+		</p>
+		<p>
+			<a class="button" href="http://www.snapscreenapp.com/p/snap-screen.html">Quick Start Guide</a>
+		</p>
+		<p></p>
+	
+		{% if premium_edition_active %}
+			<p><a class="button" href="https://goo.gl/forms/SJIf8QeCBGxoS4nP2">Contact for Help</a></p>
+	
+			<!-- 
+			<p>Snaps so far this month: </p>
+			 -->
+		{% endif %}
+		<hr/>
+	
+		<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
 	</div>
-	<a href="https://www.dropbox.com/home/Apps/Snap Screen App%E2%84%A2">View Screenshots in Dropbox</a>
-
-	<p></p>
-
-	{% if premium_edition_active %}
-		<p><a href="https://goo.gl/forms/SJIf8QeCBGxoS4nP2">Contact for Help</a></p>
-
-		<!-- 
-		<p>Snaps so far this month: </p>
-		 -->
-	{% endif %}
-	<hr/>
-
-	<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
 </body>
 </html>
