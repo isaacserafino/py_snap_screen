@@ -1,9 +1,9 @@
-from django.contrib import admin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import View
 from django.views.generic import TemplateView
+from django.views.generic import View
+from dropbox.oauth import DropboxOAuth2Flow
 
 from py_snap_screen import settings
 from web import core
@@ -13,10 +13,9 @@ from web.models import Snap
 from web.models import SupervisorId
 from web.models import SupervisorIdService
 from web.models import SupervisorStatus
-from web.models import ViewerConnection
 from web.models import ViewerConnectionService
 from web.models import ViewerService
-from dropbox.oauth import DropboxOAuth2Flow
+
 
 # Views
 class AdministrationView(LoginRequiredMixin, TemplateView):
@@ -34,12 +33,6 @@ class AdministrationView(LoginRequiredMixin, TemplateView):
 
 class LoginView(TemplateView):
     template_name = "login.html"
-
-    def get(self, request, *args, **kwargs):
-        next = request.GET.get('next', '/')
-        ': :type next: str'
-
-        return render(request, self.template_name, {'next': next})
 
 
 class MonitoringView(View):

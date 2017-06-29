@@ -1,21 +1,17 @@
+from unittest import mock, skip
+
 from django.test import TestCase
 import dropbox
-from unittest import mock, skip
 
 from py_snap_screen import settings
 from web import views
-from web.models import SupervisorId
-from web.models import ViewerConnection
-from web.models import ViewerConnectionService
-from web.models import ViewerService
-from web.models import SupervisorIdService
 from web.tests import stubs
 from web.views import AdministrationService
-from web.views import AdministrationView
 from web.views import MonitoringService
 from web.views import MonitoringView
 from web.views import SupervisorStatusService
 from web.views import ViewerConnectionCallbackView
+
 
 # View Tests
 # TODO: Implement
@@ -102,9 +98,10 @@ class AdministrationServiceTest(TestCase):
     def test_retrieve_supervisor(self):
         self.mock_persistence_service.retrieve_supervisor_by_inbound_identity_token.return_value = stubs.SUPERVISOR
 
-        actual_supervisor = self.candidate.retrieve_supervisor(stubs.FRAMEWORK_USER)
+        stub_user = stubs.FRAMEWORK_USER_FUNCTION()
+        actual_supervisor = self.candidate.retrieve_supervisor(stub_user)
 
-        self.mock_persistence_service.retrieve_supervisor_by_inbound_identity_token.assert_called_once_with(stubs.FRAMEWORK_USER)
+        self.mock_persistence_service.retrieve_supervisor_by_inbound_identity_token.assert_called_once_with(stub_user)
         self.assertEqual(stubs.SUPERVISOR, actual_supervisor)
 
     def _assert_created_flow(self, session):

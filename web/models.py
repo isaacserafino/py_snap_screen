@@ -1,8 +1,8 @@
-from django.db.models import F
 from datetime import date
 
-from shortuuid import ShortUUID
+from django.db.models import F
 from dropbox import DropboxOAuth2Flow
+from shortuuid import ShortUUID
 
 
 # Business Model
@@ -93,7 +93,7 @@ class PersistenceService:
         ': :type activity: QuerySet'
         
         if activity:
-            activity.update(activity_count = F('activity_count') + 1)
+            activity.update(activity_count=F('activity_count') + 1)
         else:
             supervisor = self.supervisor_model.objects.get(supervisor_id=supervisor_id.value)
             ': :type supervisor: Supervisor'

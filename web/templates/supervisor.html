@@ -14,7 +14,10 @@
 		<h1>Supervisor Dashboard</h1>
 	
 		{% if premium_edition_active %}
-			<p>(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires: {{ supervisor_status.premium_expiration }}</p>
+			<p>
+				(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires:
+			 	{{ supervisor_status.premium_expiration }}
+			</p>
 		{% else %}
 			<p>(v1.3.1) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
 			{% if activity_within_standard_edition_limit %}
@@ -25,7 +28,10 @@
 			<!-- 
 			<p>Snaps so far this month: </p>
 			-->
-			<p><a class="button" href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No monthly snap limit. Includes email support. $5 per month</p>
+			<p>
+				<a class="button" href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No
+				monthly snap limit. Includes email support. $5 per month
+			</p>
 		{% endif %}
 	
 		<p>
@@ -39,7 +45,8 @@
 		<div>
 			Dropbox status: Connected
 		</div>
-		<a class="button" href="https://www.dropbox.com/home/Apps/Snap Screen App%E2%84%A2">View Screenshots in Dropbox</a>
+		<a class="button" href="https://www.dropbox.com/home/Apps/Snap Screen App%E2%84%A2">View Screenshots in
+		Dropbox</a>
 	
 		<p>
 			<a class="button" href="https://sourceforge.net/projects/witl">Download App for Device to Supervise</a>
@@ -58,7 +65,10 @@
 		{% endif %}
 		<hr/>
 	
-		<p>Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with or otherwise sponsored by Dropbox, Inc.</p>
+		<p>
+			Dropbox and the Dropbox logo are trademarks of Dropbox, Inc. Snap Screen&trade; App is not affiliated with
+			or otherwise sponsored by Dropbox, Inc.
+		</p>
 	</div>
 </body>
 </html>

@@ -8,12 +8,11 @@ import shortuuid
 from web import core
 from web.models import MonthlyLimitService
 from web.models import PersistenceService
-from web.models import SupervisorId
 from web.models import SupervisorIdService
-from web.models import ViewerConnection
 from web.models import ViewerConnectionService
 from web.models import ViewerService
 from web.tests import stubs
+
 
 class MonthlyLimitServiceTest(TestCase):
     def setUp(self):
@@ -29,7 +28,8 @@ class MonthlyLimitServiceTest(TestCase):
     def test_determine_whether_current_date_before(self):
         mock_factory.mock_monthly_limit_service.today.return_value = stubs.TODAY
 
-        actual_determination = self.candidate.determine_whether_current_date_before(stubs.PREMIUM_EDITION_EXPIRATION_DATE)
+        actual_determination = self.candidate.determine_whether_current_date_before(
+                stubs.PREMIUM_EDITION_EXPIRATION_DATE)
 
         self.assertTrue(actual_determination)
 
@@ -41,11 +41,14 @@ class PersistenceServiceTest(TestCase):
     def test_save_viewer_connection(self):
         self.candidate.save_viewer_connection(stubs.CONNECTION, stubs.SUPERVISOR_ID)
         
-        mock_factory.mock_persistence_service2.assert_called_once_with(active=stubs.ACTIVE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.assert_called_once_with(active=stubs.ACTIVE,
+                supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        
         mock_factory.mock_persistence_service2.return_value.save.assert_called_once_with()
 
     def test_retrieve_viewer_connection(self):
-        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE,
+            viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
 
         actual_connection = self.candidate.retrieve_viewer_connection(stubs.SUPERVISOR_ID)
 
@@ -57,9 +60,10 @@ class PersistenceServiceTest(TestCase):
     def test_retrieve_supervisor_by_inbound_identity_token(self):
         mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
 
-        actual_supervisor = self.candidate.retrieve_supervisor_by_inbound_identity_token(stubs.FRAMEWORK_USER)
+        stub_user = stubs.FRAMEWORK_USER_FUNCTION()
+        actual_supervisor = self.candidate.retrieve_supervisor_by_inbound_identity_token(stub_user)
 
-        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(inbound_identity_token=stubs.FRAMEWORK_USER)
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(inbound_identity_token=stub_user)
         self.assertEqual(stubs.ACTIVE, actual_supervisor.active)
         self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_supervisor.premium_expiration)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, actual_supervisor.supervisor_id.value)

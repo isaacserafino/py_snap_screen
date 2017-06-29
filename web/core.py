@@ -1,18 +1,19 @@
 import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
 import dropbox
 import shortuuid
+from social_django.models import UserSocialAuth
 
 from web.models import MonthlyLimitService
 from web.models import PersistenceService
 from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
 from web.models import ViewerService
-from social_django.models import UserSocialAuth
+
 
 # Persistence Models
 class Supervisor(models.Model):
@@ -46,7 +47,7 @@ def save_user_profile(sender, instance: User, **kwargs):
 def save_user(sender, instance:UserSocialAuth, **kwargs):
     if 'access_token' in instance.extra_data:
         supervisor = instance.user.supervisor
-        supervisor.viewer_authentication_key=instance.extra_data['access_token']
+        supervisor.viewer_authentication_key = instance.extra_data['access_token']
     
         supervisor.save()
 
