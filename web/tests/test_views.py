@@ -35,10 +35,25 @@ class MonitoringViewTest(TestCase):
 
         mock_monitoring_service.track_activity.assert_called_once()
         (captured_snap, captured_supervisor_id), _ = mock_monitoring_service.track_activity.call_args
+        ''':
+        :type captured_supervisor_id: SupervisorId
+        :type captured_snap: Snap
+        '''
 
         self.assertEqual(stubs.FILENAME, captured_snap.filename)
         self.assertEqual(stubs.CONTENTS, captured_snap.image)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, captured_supervisor_id.value)
+
+    @mock.patch("web.views.monitoring_service", autospec=True)
+    def test_post_injection(self, mock_monitoring_service):
+        STUB_FILE = mock.MagicMock(read=lambda: stubs.CONTENTS)
+        # Must be assigned afterward because otherwise MagicMock itself provides a conflicting "name".
+        STUB_FILE.name = stubs.FILENAME
+
+        STUB_REQUEST = mock.MagicMock(POST={'supervisor_id':"' OR 1--"}, FILES={'activity':STUB_FILE})
+        self.candidate.dispatch(STUB_REQUEST);
+
+        mock_monitoring_service.track_activity.assert_not_called()
 
 
 class ViewerConnectionCallbackViewTest(TestCase):
