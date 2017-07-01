@@ -142,4 +142,4 @@ LOGIN_REDIRECT_URL = '/supervisor/'
 
 LOGOUT_REDIRECT_URL = '/supervisor/'
 
-from py_snap_screen.settings_local import *
+from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings
