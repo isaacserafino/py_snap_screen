@@ -44,7 +44,7 @@ class MonitoringView(View):
         supervisor_id_value = request.POST["supervisor_id"]
         ': :type supervisor_id_value: str'
 
-        if not supervisor_id_value.isalnum():
+        if not (len(supervisor_id_value) == 7 and supervisor_id_value.isalnum()):
                 return View.dispatch(self, request, *args, **kwargs)
 
         file = request.FILES["activity"]
