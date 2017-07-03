@@ -58,7 +58,9 @@ class PersistenceServiceTest(TestCase):
     # TODO: Broken
     @skip('Viewer connections are now created within Supervisors by a signal from framework user creation')
     def test_retrieve_supervisor_by_inbound_identity_token(self):
-        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE,
+                premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE,
+                viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
 
         stub_user = stubs.FRAMEWORK_USER_FUNCTION()
         actual_supervisor = self.candidate.retrieve_supervisor_by_inbound_identity_token(stub_user)
@@ -70,22 +72,29 @@ class PersistenceServiceTest(TestCase):
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_supervisor.viewer_connection.authorization_token)
 
     def test_retrieve_supervisor_status_by_supervisor_id(self):
-        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE, premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE, viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
+        mock_factory.mock_persistence_service2.objects.get.return_value = mock.MagicMock(active=stubs.ACTIVE,
+                premium_expiration=stubs.PREMIUM_EDITION_EXPIRATION_DATE, supervisor_id=stubs.SUPERVISOR_ID_VALUE,
+                viewer_authentication_key=stubs.AUTHORIZATION_TOKEN)
 
         actual_supervisor = self.candidate.retrieve_supervisor_status_by_supervisor_id(stubs.SUPERVISOR_ID)
 
-        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(
+                supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+
         self.assertEqual(stubs.ACTIVE, actual_supervisor.active)
         self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_supervisor.premium_expiration)
         self.assertEqual(stubs.SUPERVISOR_ID_VALUE, actual_supervisor.supervisor_id.value)
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_supervisor.viewer_connection.authorization_token)
 
     def test_retrieve_activity_count(self):
-        mock_factory.mock_persistence_service.objects.get.return_value = mock.MagicMock(activity_count=stubs.ACTIVITY_COUNT)
+        mock_factory.mock_persistence_service.objects.get.return_value = mock.MagicMock(
+                activity_count=stubs.ACTIVITY_COUNT)
 
         actual_count = self.candidate.retrieve_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
 
-        mock_factory.mock_persistence_service.objects.get.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+        mock_factory.mock_persistence_service.objects.get.assert_called_once_with(
+                supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+
         self.assertEqual(stubs.ACTIVITY_COUNT, actual_count)
 
     @mock.patch('web.models.F', autospec=True)
@@ -96,7 +105,9 @@ class PersistenceServiceTest(TestCase):
 
         self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
 
-        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(
+                supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+
         mock_f.assert_called_once_with('activity_count')
         mock_activity_model.update.assert_called_once_with(activity_count=stubs.INCREMENTED_ACTIVITY_COUNT)
 
@@ -108,8 +119,12 @@ class PersistenceServiceTest(TestCase):
 
         self.candidate.increment_activity_count(stubs.SUPERVISOR_ID, stubs.MONTH)
 
-        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
-        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+        mock_factory.mock_persistence_service.objects.filter.assert_called_once_with(
+                supervisor__supervisor_id=stubs.SUPERVISOR_ID_VALUE, activity_month=stubs.MONTH)
+
+        mock_factory.mock_persistence_service2.objects.get.assert_called_once_with(
+                supervisor_id=stubs.SUPERVISOR_ID_VALUE)
+
         mock_supervisor_model.activity_set.create.assert_called_once_with(activity_month=stubs.MONTH, activity_count=1)
 
 
@@ -130,9 +145,12 @@ class ViewerConnectionServiceTest(TestCase):
         self.candidate = mock_factory.createViewerConnectionService()
 
     def test_create_flow_object(self):
-        actual_flow = self.candidate.create_flow_object(stubs.KEY, stubs.SECRET, stubs.CALLBACK_URL, stubs.SESSION, stubs.CSRF_TOKEN_ATTRIBUTE_NAME)
+        actual_flow = self.candidate.create_flow_object(stubs.KEY, stubs.SECRET, stubs.CALLBACK_URL, stubs.SESSION,
+                stubs.CSRF_TOKEN_ATTRIBUTE_NAME)
 
-        mock_factory.mock_viewer_connection_service.assert_called_once_with(stubs.KEY, stubs.SECRET, stubs.CALLBACK_URL, stubs.SESSION, stubs.CSRF_TOKEN_ATTRIBUTE_NAME) 
+        mock_factory.mock_viewer_connection_service.assert_called_once_with(stubs.KEY, stubs.SECRET, stubs.CALLBACK_URL,
+                stubs.SESSION, stubs.CSRF_TOKEN_ATTRIBUTE_NAME)
+
         self.assertEqual(mock_factory.mock_viewer_connection_service.return_value, actual_flow)
 
     def test_start_creating_connection(self):
@@ -162,7 +180,8 @@ class ViewerServiceTest(TestCase):
         self.candidate.send_activity(stubs.ACTIVITY, stubs.CONNECTION)
         
         mock_factory.mock_viewer_service.assert_called_once_with(stubs.AUTHORIZATION_TOKEN)
-        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(stubs.CONTENTS, stubs.CORE_FILENAME)
+        mock_factory.mock_viewer_service.return_value.files_upload.assert_called_once_with(stubs.CONTENTS,
+                stubs.CORE_FILENAME)
 
 
 class MockCoreServiceFactory:

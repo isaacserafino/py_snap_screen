@@ -31,7 +31,9 @@ class Activity(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance: User, created: bool, **kwargs):
+def create_user_profile(sender, instance: User, created: bool, **kwargs):  # @UnusedVariable Because this method is an
+        # override
+
     if created:
         supervisor_id = shortuuid.ShortUUID().random(length=7)
 
@@ -39,12 +41,12 @@ def create_user_profile(sender, instance: User, created: bool, **kwargs):
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance: User, **kwargs):
+def save_user_profile(sender, instance: User, **kwargs):  # @UnusedVariable Because this method is an override
     instance.supervisor.save()
 
 
 @receiver(post_save, sender=UserSocialAuth)
-def save_user(sender, instance:UserSocialAuth, **kwargs):
+def save_user(sender, instance:UserSocialAuth, **kwargs):  # @UnusedVariable Because this method is an override
     if 'access_token' in instance.extra_data:
         supervisor = instance.user.supervisor
         supervisor.viewer_authentication_key = instance.extra_data['access_token']

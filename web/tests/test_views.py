@@ -77,7 +77,8 @@ class AdministrationServiceTest(TestCase):
         self.mock_viewer_connection_service = mock_viewer_connection_service
         self.mock_supervisor_id_service = mock_supervisor_id_service
         self.mock_persistence_service = mock_persistence_service
-        self.candidate = AdministrationService(views.persistence_service, views.supervisor_id_service, views.viewer_connection_service)
+        self.candidate = AdministrationService(views.persistence_service, views.supervisor_id_service,
+                views.viewer_connection_service)
 
         self.flow = mock.create_autospec(dropbox.DropboxOAuth2Flow)
         self.mock_viewer_connection_service.create_flow_object.return_value = self.flow
@@ -104,8 +105,12 @@ class AdministrationServiceTest(TestCase):
         actual_supervisor_id = self.candidate.finish_creating_supervisor_id(callback_parameters, session)
 
         self._assert_created_flow(session)
-        self.mock_viewer_connection_service.finish_creating_connection.assert_called_once_with(callback_parameters, self.flow)
-        self.mock_persistence_service.save_viewer_connection.assert_called_once_with(stubs.CONNECTION, stubs.SUPERVISOR_ID)
+        self.mock_viewer_connection_service.finish_creating_connection.assert_called_once_with(callback_parameters,
+                self.flow)
+
+        self.mock_persistence_service.save_viewer_connection.assert_called_once_with(stubs.CONNECTION,
+                stubs.SUPERVISOR_ID)
+
         self.assertEqual(stubs.SUPERVISOR_ID, actual_supervisor_id)
 
     # TODO: Broken
@@ -120,7 +125,8 @@ class AdministrationServiceTest(TestCase):
         self.assertEqual(stubs.SUPERVISOR, actual_supervisor)
 
     def _assert_created_flow(self, session):
-        self.mock_viewer_connection_service.create_flow_object.assert_called_once_with(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
+        self.mock_viewer_connection_service.create_flow_object.assert_called_once_with(settings.DROPBOX_API_KEY,
+                settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
 
 
 class SupervisorStatusServiceTest(TestCase):
@@ -136,7 +142,9 @@ class SupervisorStatusServiceTest(TestCase):
 
         actual_determination = self.candidate.determine_whether_premium_edition_active(stubs.SUPERVISOR)
 
-        self.mock_monthly_limit_service.determine_whether_current_date_before.assert_called_once_with(stubs.PREMIUM_EDITION_EXPIRATION_DATE)
+        self.mock_monthly_limit_service.determine_whether_current_date_before.assert_called_once_with(
+                stubs.PREMIUM_EDITION_EXPIRATION_DATE)
+
         self.assertTrue(actual_determination)
 
     def test_determine_whether_activity_within_standard_edition_limit(self):
@@ -172,8 +180,14 @@ class MonitoringServiceTest(TestCase):
 
         self.candidate.track_activity(stubs.ACTIVITY, stubs.SUPERVISOR_ID)
 
-        mock_supervisor_status_service.determine_whether_premium_edition_active.assert_called_once_with(stubs.SUPERVISOR)
-        mock_supervisor_status_service.determine_whether_activity_within_standard_edition_limit.assert_called_once_with(stubs.SUPERVISOR)
-        self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.assert_called_once_with(stubs.SUPERVISOR_ID)
+        mock_supervisor_status_service.determine_whether_premium_edition_active.assert_called_once_with(
+                stubs.SUPERVISOR)
+
+        mock_supervisor_status_service.determine_whether_activity_within_standard_edition_limit.assert_called_once_with(
+                stubs.SUPERVISOR)
+
+        self.mock_persistence_service.retrieve_supervisor_status_by_supervisor_id.assert_called_once_with(
+                stubs.SUPERVISOR_ID)
+
         self.mock_viewer_service.send_activity.assert_called_once_with(stubs.ACTIVITY, stubs.CONNECTION)
         mock_supervisor_status_service.increment_activity_count.assert_called_once_with(stubs.SUPERVISOR_ID)

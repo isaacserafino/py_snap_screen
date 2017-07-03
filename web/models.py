@@ -21,7 +21,9 @@ class ViewerConnection:
         self.authorization_token = authorization_token
 
 class SupervisorStatus:
-    def __init__(self, active: bool, premium_expiration: date, supervisor_id: SupervisorId, viewer_connection: ViewerConnection):
+    def __init__(self, active: bool, premium_expiration: date, supervisor_id: SupervisorId,
+                 viewer_connection: ViewerConnection):
+
         self.active = active
         self.premium_expiration = premium_expiration
         self.supervisor_id = supervisor_id
@@ -52,7 +54,8 @@ class PersistenceService:
         self.supervisor_model = supervisor_model
 
     def save_viewer_connection(self, connection: ViewerConnection, supervisor_id: SupervisorId) -> None:
-        supervisor = self.supervisor_model(active=connection.active, supervisor_id=supervisor_id.value, viewer_authentication_key=connection.authorization_token)
+        supervisor = self.supervisor_model(active=connection.active, supervisor_id=supervisor_id.value,
+                                           viewer_authentication_key=connection.authorization_token)
         ': :type supervisor: Supervisor'
 
         supervisor.save()
@@ -80,7 +83,8 @@ class PersistenceService:
 
     def retrieve_activity_count(self, supervisor_id: SupervisorId, activity_month: date) -> int:
         try:
-            activity = self.activity_model.objects.get(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
+            activity = self.activity_model.objects.get(supervisor__supervisor_id=supervisor_id.value,
+                                                       activity_month=activity_month)
             ': :type activity: Activity'
 
             return activity.activity_count
@@ -89,7 +93,8 @@ class PersistenceService:
             return 0
 
     def increment_activity_count(self, supervisor_id: SupervisorId, activity_month: date) -> None:
-        activity = self.activity_model.objects.filter(supervisor__supervisor_id=supervisor_id.value, activity_month=activity_month)
+        activity = self.activity_model.objects.filter(supervisor__supervisor_id=supervisor_id.value,
+                                                      activity_month=activity_month)
         ': :type activity: QuerySet'
         
         if activity:
@@ -115,7 +120,8 @@ class ViewerConnectionService:
     def __init__(self, flow):
         self.flow = flow
 
-    def create_flow_object(self, viewer_key: str, viewer_secret: str, callback_url: str, session, csrf_token_attribute_name: str) -> DropboxOAuth2Flow:
+    def create_flow_object(self, viewer_key: str, viewer_secret: str, callback_url: str, session,
+                           csrf_token_attribute_name: str) -> DropboxOAuth2Flow:
         if self.flow is None: return None
 
         return self.flow(viewer_key, viewer_secret, callback_url, session, csrf_token_attribute_name)
@@ -139,7 +145,8 @@ class ViewerService:
         self.third_party = third_party
 
     def send_activity(self, activity: bool, connection):
-        if self.third_party is None or activity is None or connection is None or connection.authorization_token is None: return
+        if (self.third_party is None or activity is None or connection is None 
+                or connection.authorization_token is None): return
 
         api = self.third_party(connection.authorization_token)
         api.files_upload(activity.image, "/" + activity.filename)

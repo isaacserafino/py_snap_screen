@@ -21,12 +21,15 @@ from web.models import ViewerService
 class AdministrationView(LoginRequiredMixin, TemplateView):
     template_name = "supervisor.html"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # @UnusedVariable Because this method is an override
         supervisor_status = administration_service.retrieve_supervisor(request.user.id);
         premium_edition_active = supervisor_status_service.determine_whether_premium_edition_active(supervisor_status)
-        activity_within_standard_edition_limit = supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor_status)
 
-        model = {'supervisor_status':supervisor_status, 'premium_edition_active': premium_edition_active, 'activity_within_standard_edition_limit': activity_within_standard_edition_limit}
+        activity_within_standard_edition_limit = \
+                supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor_status)
+
+        model = {'supervisor_status':supervisor_status, 'premium_edition_active': premium_edition_active,
+                 'activity_within_standard_edition_limit': activity_within_standard_edition_limit}
 
         return render(request, self.template_name, model)
 
@@ -67,7 +70,7 @@ class MonitoringView(View):
 class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
     template_name = "callback.html"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # @UnusedVariable Because this method is an override
         supervisor_id = administration_service.retrieve_supervisor_id(request.user)
 
         return render(request, self.template_name, {'supervisor_id': supervisor_id})
@@ -75,7 +78,9 @@ class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
 
 # Business Services
 class AdministrationService:
-    def __init__(self, persistence_service: PersistenceService, supervisor_id_service: SupervisorIdService, viewer_connection_service: ViewerConnectionService):
+    def __init__(self, persistence_service: PersistenceService, supervisor_id_service: SupervisorIdService,
+                 viewer_connection_service: ViewerConnectionService):
+
         self.persistence_service = persistence_service
         self.supervisor_id_service = supervisor_id_service
         self.viewer_connection_service = viewer_connection_service
@@ -105,7 +110,9 @@ class AdministrationService:
         return self.viewer_connection_service.start_creating_connection(flow)
 
     def _create_flow(self, session: dict) -> DropboxOAuth2Flow:
-        return self.viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
+        return self.viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET,
+                                                                 settings.DROPBOX_CALLBACK_URL, session,
+                                                                 "dropbox-auth-csrf-token")
 
 
 class MonitoringService:
@@ -121,7 +128,9 @@ class MonitoringService:
 
         premium_edition_active = supervisor_status_service.determine_whether_premium_edition_active(supervisor)
         if not premium_edition_active:
-            activity_within_standard_edition_limit = supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor)
+            activity_within_standard_edition_limit = \
+                    supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor)
+
             if not activity_within_standard_edition_limit: return
 
         connection = supervisor.viewer_connection
