@@ -142,4 +142,9 @@ LOGIN_REDIRECT_URL = '/supervisor/'
 
 LOGOUT_REDIRECT_URL = '/supervisor/'
 
+CSRF_COOKIE_HTTPONLY = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
 from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings

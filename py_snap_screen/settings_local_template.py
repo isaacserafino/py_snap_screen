@@ -11,6 +11,13 @@ ALLOWED_HOSTS = [u'isaacserafino.pythonanywhere.com']
 DROPBOX_CALLBACK_URL = "https://isaacserafino.pythonanywhere.com/viewer-connection-callback/"
 # DROPBOX_CALLBACK_URL = "http://127.0.0.1:8000/viewer-connection-callback/"
 
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 60
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+
 # If you are a Snap Screen developer, please request these tokens from your administrator. If you are adapting code for
 # use in your own project, you will need to obtain your own tokens.
 
