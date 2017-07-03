@@ -19,8 +19,8 @@ AUTHORIZATION_TOKEN = 'stub_authorization_token'
 CONNECTION = ViewerConnection(ACTIVE, AUTHORIZATION_TOKEN)
 
 CONTENTS = b'stub_contents'
-FILENAME = 'stub_filename.txt'
-CORE_FILENAME = '/stub_filename.txt'
+FILENAME = 'next_123456.jpg'
+CORE_FILENAME = '/next_123456.jpg'
 ACTIVITY = Snap(FILENAME, CONTENTS)
 
 CSRF_TOKEN_ATTRIBUTE_NAME = 'dropbox-auth-csrf-token'

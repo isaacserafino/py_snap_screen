@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -54,6 +56,11 @@ class MonitoringView(View):
 
         filename = file.name
         ': :type filename: str'
+
+        filename_match = re.fullmatch(r'next_(?P<interval>\d+)\.jpg', filename)
+
+        if filename_match is None or not (1 <= int(filename_match.group('interval')) <= 600000):
+                return View.dispatch(self, request, *args, **kwargs)
 
         # TODO: Use chunks?
         activity_value = file.read()
