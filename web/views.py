@@ -17,12 +17,11 @@ from web.models import SupervisorIdService
 from web.models import SupervisorStatus
 from web.models import ViewerConnectionService
 from web.models import ViewerService
-from tkinter.constants import CURRENT
 
 
 # Views
 class AdministrationView(LoginRequiredMixin, TemplateView):
-    template_name = "supervisor.html"
+    template_name = "supervisor.djhtml"
 
     def get(self, request, *args, **kwargs):  # @UnusedVariable Because this method is an override
         supervisor_status = administration_service.retrieve_supervisor(request.user.id);
@@ -44,7 +43,7 @@ class AdministrationView(LoginRequiredMixin, TemplateView):
 
 
 class LoginView(TemplateView):
-    template_name = "login.html"
+    template_name = "login.djhtml"
 
 
 class MonitoringView(View):
@@ -82,7 +81,7 @@ class MonitoringView(View):
 
 
 class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
-    template_name = "callback.html"
+    template_name = "callback.djhtml"
 
     def get(self, request, *args, **kwargs):  # @UnusedVariable Because this method is an override
         supervisor_id = administration_service.retrieve_supervisor_id(request.user)
