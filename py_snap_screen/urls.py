@@ -27,5 +27,7 @@ urlpatterns = [
 
     url('', include('social_django.urls', namespace='social')),
     url(r'^accounts/login/$', web.views.LoginView.as_view()),
-    url(r'^accounts/logout/$', auth_views.LogoutView.as_view())
+    url(r'^accounts/logout/$', auth_views.LogoutView.as_view()),
+
+    url(r'^paypal/', include('paypal.standard.ipn.urls'))
 ]

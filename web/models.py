@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from datetime import date
 
 from django.db.models import F
@@ -6,6 +7,16 @@ from shortuuid import ShortUUID
 
 
 # Business Model
+class PaymentNotification(ABC):
+    @abstractmethod
+    def validate(self) -> bool:
+        pass
+
+class PaymentProfile(ABC):
+    @abstractmethod
+    def retrieve_form(self) -> str:
+        pass
+
 class Snap:
     def __init__(self, filename: str, image: bytes):
         self.filename = filename
@@ -74,7 +85,7 @@ class PersistenceService:
         viewer_connection = ViewerConnection(supervisor.active, supervisor.viewer_authentication_key)
         return SupervisorStatus(supervisor.active, supervisor.premium_expiration, supervisor_id, viewer_connection)
 
-    def retrieve_supervisor_status_by_supervisor_id(self, supervisor_id) -> SupervisorStatus:
+    def retrieve_supervisor_status_by_supervisor_id(self, supervisor_id: SupervisorId) -> SupervisorStatus:
         supervisor = self.supervisor_model.objects.get(supervisor_id=supervisor_id.value)
         ': :type supervisor: Supervisor'
 
@@ -104,6 +115,10 @@ class PersistenceService:
             ': :type supervisor: Supervisor'
 
             supervisor.activity_set.create(activity_month=activity_month, activity_count=1)
+
+    # TODO: Implement
+    def update_premium_expiration(self, supervisor_id: SupervisorId, premium_expiration: date) -> None:
+        pass
 
 
 class SupervisorIdService:

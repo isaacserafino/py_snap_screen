@@ -9,7 +9,7 @@ from dropbox.oauth import DropboxOAuth2Flow
 
 from py_snap_screen import settings
 from web import core
-from web.models import MonthlyLimitService
+from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile
 from web.models import PersistenceService
 from web.models import Snap
 from web.models import SupervisorId
@@ -17,6 +17,7 @@ from web.models import SupervisorIdService
 from web.models import SupervisorStatus
 from web.models import ViewerConnectionService
 from web.models import ViewerService
+from tkinter.constants import CURRENT
 
 
 # Views
@@ -30,8 +31,14 @@ class AdministrationView(LoginRequiredMixin, TemplateView):
         activity_within_standard_edition_limit = \
                 supervisor_status_service.determine_whether_activity_within_standard_edition_limit(supervisor_status)
 
+        payment_profile = payment_service.retrieve_profile()
+        ': :type payment_profile: PaymentProfile'
+
+        payment_form = payment_profile.retrieve_form()
+
         model = {'supervisor_status':supervisor_status, 'premium_edition_active': premium_edition_active,
-                 'activity_within_standard_edition_limit': activity_within_standard_edition_limit}
+                 'activity_within_standard_edition_limit': activity_within_standard_edition_limit,
+                 'payment_form': payment_form}
 
         return render(request, self.template_name, model)
 
@@ -147,6 +154,18 @@ class MonitoringService:
         supervisor_status_service.increment_activity_count(supervisor_id)
 
 
+class PaymentService:
+    def __init__(self, payment_profile: PaymentProfile):
+        self.payment_profile = payment_profile
+
+    def process_notification(self, supervisor_id: SupervisorId, payment_notification: PaymentNotification) -> None:
+        if payment_notification.validate():
+            supervisor_status_service.renew_premium_edition_for_one_month(supervisor_id)
+
+    def retrieve_profile(self) -> PaymentProfile:
+        return self.payment_profile
+
+
 class SupervisorStatusService:
     LIMIT = 1000
 
@@ -169,11 +188,22 @@ class SupervisorStatusService:
         activity_month = self.monthly_limit_service.retrieve_current_month()
         self.persistence_service.increment_activity_count(supervisor_id, activity_month)
 
+    # TODO: (IMS) Implement test
+    def renew_premium_edition_for_one_month(self, supervisor_id: SupervisorId) -> None:
+        current_month = self.monthly_limit_service.retrieve_current_month()
+
+        # TODO: How renew for another month?
+        # TODO: (IMS) Payment logging
+        self.persistence_service.update_premium_expiration(supervisor_id, current_month)
+
 
 factory = core.CoreServiceFactory()
 viewer_service = factory.createViewerService()
 persistence_service = factory.createPersistenceService()
 monitoring_service = MonitoringService(persistence_service, viewer_service)
+
+payment_service = None
+': :type payment_service: PaymentService'
 
 supervisor_id_service = factory.createSupervisorIdService()
 viewer_connection_service = factory.createViewerConnectionService()

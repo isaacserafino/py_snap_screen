@@ -1,6 +1,5 @@
-from unittest import mock, skip
+from unittest import mock, skip, TestCase
 
-from django.test import TestCase
 import dropbox
 
 from py_snap_screen import settings

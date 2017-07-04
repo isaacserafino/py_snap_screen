@@ -28,12 +28,17 @@
 			<!-- 
 			<p>Snaps so far this month: </p>
 			-->
-			<p>
-				<a class="button" href="https://goo.gl/forms/og6RtqN0j4kUPas33">Activate Premium Edition</a> - No
-				monthly snap limit. Includes email support. $5 per month
-			</p>
+			<hr />
+			{% comment "TODO: (IMS) How renew for next month?" %}{% endcomment %}
+			<h2>
+				Premium Edition - No monthly snap limit. Includes email support. $5 per month
+			</h2>
+			{{ payment_form }}
+			<hr />
 		{% endif %}
+
 	
+		<p> </p>
 		<p>
 			<a class="button" href="/accounts/logout/?next=/supervisor/">Logout</a>
 		</p>

@@ -4,11 +4,15 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls.base import reverse
 import dropbox
+from paypal.standard.forms import PayPalPaymentsForm
+from paypal.standard.ipn.models import PayPalIPN
+from paypal.standard.models import ST_PP_COMPLETED
 import shortuuid
 from social_django.models import UserSocialAuth
 
-from web.models import MonthlyLimitService
+from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile
 from web.models import PersistenceService
 from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
@@ -52,6 +56,29 @@ def save_user(sender, instance:UserSocialAuth, **kwargs):  # @UnusedVariable Bec
         supervisor.viewer_authentication_key = instance.extra_data['access_token']
     
         supervisor.save()
+
+
+class PayPalPaymentNotification(PaymentNotification):
+    def __init__(self, notification: PayPalIPN):
+        self.notification = notification
+
+    def validate(self) -> bool:
+        # TODO: (IMS) Verify amount, currency, etc.?
+        return (self.notification.payment_status == ST_PP_COMPLETED and self.notification.receiver_email 
+                == 'i@findmercy.com' and self.notification.business == 'i@findmercy.com')
+
+
+class PayPalPaymentProfile(PaymentProfile):
+    def __init__(self, configuration: dict):
+        self.configuration = configuration
+
+    def retrieve_form(self) -> str:
+        configuration = self.configuration
+        configuration['notify_url'] += reverse('paypal-ipn')
+
+        form = PayPalPaymentsForm(button_type=PayPalPaymentsForm.SUBSCRIBE, initial=configuration)
+
+        return form.render()
 
 
 class CoreServiceFactory:

@@ -147,4 +147,20 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+PAYPAL_PROFILE = {
+    "business": "i@findmercy.com",
+    "amount": "5.00",
+    "item_name": "Snap Screen Premium Edition Monthly Subscription",
+    # TODO: (IMS) Placeholder:
+    "invoice": "unique-invoice-id",
+
+    # Note: This is completed within code once available:
+    "notify_url": "https://isaacserafino.pythonanywhere.com",
+
+    "return_url": "https://isaacserafino.pythonanywhere.com/supervisor/",
+    "cancel_return": "https://isaacserafino.pythonanywhere.com/supervisor/",
+}
+
+PAYPAL_TEST = True
+
 from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings
