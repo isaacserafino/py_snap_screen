@@ -40,23 +40,48 @@ class SupervisorStatus:
         self.supervisor_id = supervisor_id
         self.viewer_connection = viewer_connection
 
+class PremiumEditionStatus:
+    def __init__(self, activity_month: date, premium_edition_active: bool):
+        self.activity_month = activity_month
+        self.premium_edition_active = premium_edition_active
+
+class StandardEditionStatus:
+    def __init__(self, activity_count: int, activity_within_standard_edition_limit: bool):
+        self.activity_count = activity_count
+        self.activity_within_standard_edition_limit = activity_within_standard_edition_limit
+
+class Dashboard:
+    def __init__(self, premium_edition_active: bool, premium_edition_expiration: date,
+                standard_edition_status: StandardEditionStatus, supervisor_id: SupervisorId):
+
+        self.premium_edition_active = premium_edition_active
+        self.premium_edition_expiration = premium_edition_expiration
+        self.standard_edition_status = standard_edition_status
+        self.supervisor_id = supervisor_id
+
 
 # Core Services
 class MonthlyLimitService:
+    LIMIT = 1000
+
     def __init__(self, date: date):
         self.date = date
 
-    def retrieve_current_month(self) -> date:
+    def retrieve_premium_edition_status(self, supervisor_status: SupervisorStatus) -> PremiumEditionStatus:
         today = self.date.today()
         ': :type today: date'
 
-        return today.replace(day=1)
+        activity_month = today.replace(day=1)
+        expiration = supervisor_status.premium_expiration
+        
+        premium_edition_active = (expiration is not None and today <= expiration)
 
-    def determine_whether_current_date_before(self, expiration: date) -> bool:
-        today = self.date.today()
-        ': :type today: date'
+        return PremiumEditionStatus(activity_month, premium_edition_active)
 
-        return today <= expiration
+    def retrieve_standard_edition_status(self, activity_count: int) -> StandardEditionStatus:
+        activity_within_standard_edition_limit = activity_count < self.LIMIT
+
+        return StandardEditionStatus(activity_count, activity_within_standard_edition_limit)
 
 
 class PersistenceService:

@@ -13,21 +13,19 @@
 	<div id="content">
 		<h1>Supervisor Dashboard</h1>
 	
-		{% if premium_edition_active %}
+		{% if dashboard.premium_edition_active %}
 			<p>
 				(1.4.0) Premium Edition Active - No monthly snap limit. $5 per month. Expires:
-			 	{{ supervisor_status.premium_expiration }}
+			 	{{ dashboard.premium_edition_expiration }}
 			</p>
 		{% else %}
-			<p>(v1.3.1) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
-			{% if activity_within_standard_edition_limit %}
+			<p>(v1.3.2) Standard Edition - Free, limited to 1000 snaps per month maximum.</p>
+			{% if dashboard.standard_edition_status.activity_within_standard_edition_limit %}
 				<p>Status: Active</p>
 			{% else %}
 				<p class="warning">Status: Deactivated because limit reached.</p>
 			{% endif %}
-			<!-- 
-			<p>Snaps so far this month: </p>
-			-->
+			<p>Snaps so far this month: {{ dashboard.standard_edition_status.activity_count }}</p>
 			<hr />
 			{% comment "TODO: (IMS) How renew for next month?" %}{% endcomment %}
 			<h2>
@@ -61,12 +59,10 @@
 		</p>
 		<p></p>
 	
-		{% if premium_edition_active %}
+		{% if dashboard.premium_edition_active %}
 			<p><a class="button" href="https://goo.gl/forms/SJIf8QeCBGxoS4nP2">Contact for Help</a></p>
 	
-			<!-- 
-			<p>Snaps so far this month: </p>
-			 -->
+			<p>Snaps so far this month: {{ dashboard.standard_edition_status.activity_count }}</p>
 		{% endif %}
 		<hr/>
 	

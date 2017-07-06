@@ -6,7 +6,7 @@ from py_snap_screen import settings
 from web import core
 from web.models import ViewerConnection
 from web.tests import stubs
-from web.views import AdministrationService
+from web.services import AdministrationService
 
 
 # TODO: (IMS) Change from service tests to view tests
@@ -68,10 +68,12 @@ class SupervisorIdServiceTest(TestCase):
 
 class AdministrationServiceTest(TestCase):
     def setUp(self):
+        monthly_limit_service = core_service_factory.createMonthlyLimitService()
         persistence_service = core_service_factory.createPersistenceService()
         supervisor_id_service = core_service_factory.createSupervisorIdService()
         viewer_connection_service = core_service_factory.createViewerConnectionService()
-        self.candidate = AdministrationService(persistence_service, supervisor_id_service, viewer_connection_service)
+        self.candidate = AdministrationService(monthly_limit_service, persistence_service, supervisor_id_service,
+                viewer_connection_service)
 
     def test_start_creating_supervisor_id(self):
         session = {}

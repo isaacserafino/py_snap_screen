@@ -18,20 +18,19 @@ class MonthlyLimitServiceTest(TestCase):
     def setUp(self):
         self.candidate = mock_factory.createMonthlyLimitService()
 
-    def test_retrieve_current_month(self):
+    def test_retrieve_premium_edition_status(self):
         mock_factory.mock_monthly_limit_service.today.return_value = stubs.TODAY
 
-        actual_month = self.candidate.retrieve_current_month()
+        actual_premium_edition_status = self.candidate.retrieve_premium_edition_status(stubs.SUPERVISOR)
 
-        self.assertEqual(stubs.MONTH, actual_month)
+        self.assertEqual(stubs.MONTH, actual_premium_edition_status.activity_month)
+        self.assertTrue(actual_premium_edition_status.premium_edition_active)
 
-    def test_determine_whether_current_date_before(self):
-        mock_factory.mock_monthly_limit_service.today.return_value = stubs.TODAY
+    def test_retrieve_standard_edition_status(self):
+        actual_status = self.candidate.retrieve_standard_edition_status(stubs.ACTIVITY_COUNT)
 
-        actual_determination = self.candidate.determine_whether_current_date_before(
-                stubs.PREMIUM_EDITION_EXPIRATION_DATE)
-
-        self.assertTrue(actual_determination)
+        self.assertEqual(stubs.ACTIVITY_COUNT, actual_status.activity_count)
+        self.assertTrue(actual_status.activity_within_standard_edition_limit)
 
 
 class PersistenceServiceTest(TestCase):

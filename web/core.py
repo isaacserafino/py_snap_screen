@@ -103,3 +103,11 @@ class CoreServiceFactory:
 
     def createViewerConnectionService(self) -> ViewerConnectionService:
         return ViewerConnectionService(self.core_viewer_connection_service)
+
+
+factory = CoreServiceFactory()
+monthly_limit_service = factory.createMonthlyLimitService()
+persistence_service = factory.createPersistenceService()
+viewer_service = factory.createViewerService()
+supervisor_id_service = factory.createSupervisorIdService()
+viewer_connection_service = factory.createViewerConnectionService()

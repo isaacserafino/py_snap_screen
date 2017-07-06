@@ -2,6 +2,7 @@ from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.ipn.signals import valid_ipn_received
 
 from web.core import PayPalPaymentNotification
+from web.services import payment_service
 
 
 class PaymentSignal:
@@ -16,7 +17,3 @@ class PaymentSignal:
         supervisor_id = None
 
         payment_service.process_notification(supervisor_id, notification)
-
-
-payment_service = None
-': :type payment_service: PaymentService'

@@ -2,7 +2,7 @@ from datetime import date
 
 from django.contrib.auth.models import User
 
-from web.models import Snap
+from web.models import Snap, PremiumEditionStatus, StandardEditionStatus
 from web.models import SupervisorId
 from web.models import SupervisorStatus
 from web.models import ViewerConnection
@@ -35,6 +35,9 @@ FRAMEWORK_USER_FUNCTION = lambda: User.objects.get_or_create(username=INBOUND_ID
 MONTH = date(2012, 12, 1)
 PREMIUM_EDITION_EXPIRATION_DATE = date(2012, 12, 31)
 TODAY = date(2012, 12, 30)
+
+PREMIUM_EDITON_STATUS = PremiumEditionStatus(MONTH, False)
+STANDARD_EDITION_STATUS = StandardEditionStatus(ACTIVITY_COUNT, True)
 
 SUPERVISOR_ID_VALUE = '3oe2UAP'
 SUPERVISOR_ID = SupervisorId(SUPERVISOR_ID_VALUE)
