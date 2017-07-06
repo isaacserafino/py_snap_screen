@@ -9,7 +9,6 @@ from web.models import Snap, SupervisorId
 from web.services import monitoring_service, administration_service, payment_service
 
 
-# Views
 class AdministrationView(LoginRequiredMixin, TemplateView):
     template_name = "supervisor.djhtml"
 

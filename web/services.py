@@ -21,7 +21,7 @@ class AdministrationService:
         self.supervisor_id_service = supervisor_id_service
         self.viewer_connection_service = viewer_connection_service
 
-    def finish_creating_supervisor_id(self, callback_parameters, session: dict):
+    def finish_creating_supervisor_id(self, callback_parameters, session: dict) -> SupervisorId:
         flow = self._create_flow(session)
 
         connection = self.viewer_connection_service.finish_creating_connection(callback_parameters, flow)
@@ -48,10 +48,10 @@ class AdministrationService:
         return Dashboard(premium_edition_status.premium_edition_active, supervisor_status.premium_expiration,
                         standard_edition_status, supervisor_status.supervisor_id) 
 
-    def retrieve_supervisor_id(self, framework_user):
+    def retrieve_supervisor_id(self, framework_user) -> SupervisorId:
         return SupervisorId(framework_user.supervisor.supervisor_id)
 
-    def start_creating_supervisor_id(self, session: dict):
+    def start_creating_supervisor_id(self, session: dict) -> str:
         flow = self._create_flow(session)
 
         return self.viewer_connection_service.start_creating_connection(flow)
@@ -69,7 +69,7 @@ class MonitoringService:
         self.viewer_service = viewer_service
         self.monthly_limit_service = monthly_limit_service
 
-    def track_activity(self, activity: Snap, supervisor_id: SupervisorId):
+    def track_activity(self, activity: Snap, supervisor_id: SupervisorId) -> None:
         if supervisor_id is None or activity is None: return
 
         supervisor = self.persistence_service.retrieve_supervisor_status_by_supervisor_id(supervisor_id)
@@ -97,7 +97,10 @@ class PaymentService:
         self.payment_profile = payment_profile
         self.monthly_limit_service = monthly_limit_service
 
-    def process_notification(self, supervisor_id: SupervisorId, payment_notification: PaymentNotification) -> None:
+    def process_notification(self, payment_notification: PaymentNotification) -> None:
+        # TODO: (IMS) Get Supervisor ID
+        supervisor_id = None
+
         if payment_notification.validate():
             self.monthly_limit_service.renew_premium_edition_for_one_month(supervisor_id)
 

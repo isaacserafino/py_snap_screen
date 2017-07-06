@@ -57,27 +57,25 @@ class AdministrationServiceTest(TestCase):
 
         self.assertEqual(stubs.SUPERVISOR_ID, actual_supervisor_id)
 
-    # TODO: (IMS) From here to next comment in this class, adapt or remove from this class
-    @skip('')
-    def test_determine_whether_premium_edition_active(self):
-        self.mock_monthly_limit_service.determine_whether_current_date_before.return_value = True
-
-        actual_determination = self.candidate.determine_whether_premium_edition_active(stubs.SUPERVISOR)
-
-        self.mock_monthly_limit_service.determine_whether_current_date_before.assert_called_once_with(
-                stubs.PREMIUM_EDITION_EXPIRATION_DATE)
-
-        self.assertTrue(actual_determination)
-
-    @skip('')
-    def test_determine_whether_activity_within_standard_edition_limit(self):
-        self.mock_monthly_limit_service.retrieve_current_month.return_value = stubs.MONTH
+    def test_retrieve_dashboard(self):
+        self.mock_persistence_service.retrieve_supervisor_by_inbound_identity_token.return_value = stubs.SUPERVISOR
+        self.mock_monthly_limit_service.retrieve_premium_edition_status.return_value = stubs.PREMIUM_EDITON_STATUS
         self.mock_persistence_service.retrieve_activity_count.return_value = stubs.ACTIVITY_COUNT
-        actual_determination = self.candidate.determine_whether_activity_within_standard_edition_limit(stubs.SUPERVISOR)
+        self.mock_monthly_limit_service.retrieve_standard_edition_status.return_value = stubs.STANDARD_EDITION_STATUS
 
-        self.mock_monthly_limit_service.retrieve_current_month.assert_called_once()
+        # TODO: (IMS) Figure out and use correct inbound_identity_token
+        actual_dashboard = self.candidate.retrieve_dashboard(1)
+
+        self.mock_persistence_service.retrieve_supervisor_by_inbound_identity_token.assert_called_once_with(1)
+        self.mock_monthly_limit_service.retrieve_premium_edition_status.assert_called_once_with(stubs.SUPERVISOR)
         self.mock_persistence_service.retrieve_activity_count.assert_called_once_with(stubs.SUPERVISOR_ID, stubs.MONTH)
-        self.assertTrue(actual_determination)
+        self.mock_monthly_limit_service.retrieve_standard_edition_status.assert_called_once_with(stubs.ACTIVITY_COUNT)
+
+        self.assertFalse(actual_dashboard.premium_edition_active)
+        self.assertEqual(stubs.PREMIUM_EDITION_EXPIRATION_DATE, actual_dashboard.premium_edition_expiration)
+        self.assertEqual(stubs.ACTIVITY_COUNT, actual_dashboard.standard_edition_status.activity_count)
+        self.assertTrue(actual_dashboard.standard_edition_status.activity_within_standard_edition_limit)
+        self.assertEqual(stubs.SUPERVISOR_ID, actual_dashboard.supervisor_id)
 
     # TODO: Broken
     @skip('Viewer connections are now created within Supervisors by a signal from framework user creation')

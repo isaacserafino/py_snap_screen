@@ -2,7 +2,7 @@ from datetime import date
 
 from django.contrib.auth.models import User
 
-from web.models import Snap, PremiumEditionStatus, StandardEditionStatus
+from web.models import Snap, PremiumEditionStatus, StandardEditionStatus, Dashboard
 from web.models import SupervisorId
 from web.models import SupervisorStatus
 from web.models import ViewerConnection
@@ -43,3 +43,7 @@ SUPERVISOR_ID_VALUE = '3oe2UAP'
 SUPERVISOR_ID = SupervisorId(SUPERVISOR_ID_VALUE)
 
 SUPERVISOR = SupervisorStatus(ACTIVE, PREMIUM_EDITION_EXPIRATION_DATE, SUPERVISOR_ID, CONNECTION)
+
+DASHBOARD = Dashboard(False, PREMIUM_EDITION_EXPIRATION_DATE, STANDARD_EDITION_STATUS, SUPERVISOR_ID)
+
+PAYMENT_FORM = "<form></form>"

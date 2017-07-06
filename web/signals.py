@@ -13,7 +13,4 @@ class PaymentSignal:
     def receive_payment_notification(self, sender: PayPalIPN):
         notification = PayPalPaymentNotification(sender)
 
-        # TODO: (IMS) Get Supervisor ID
-        supervisor_id = None
-
-        payment_service.process_notification(supervisor_id, notification)
+        payment_service.process_notification(notification)
