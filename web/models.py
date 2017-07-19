@@ -40,6 +40,23 @@ class SupervisorStatus:
         self.supervisor_id = supervisor_id
         self.viewer_connection = viewer_connection
 
+class InboundIdentityToken(ABC):
+    @abstractmethod
+    def create_supervisor(self, supervisor_model, supervisor_id: SupervisorId) -> None:
+        pass
+
+    @abstractmethod
+    def retrieve_supervisor_status(self) -> SupervisorStatus:
+        pass
+
+    @abstractmethod
+    def save_supervisor(self) -> None:
+        pass
+
+    @abstractmethod
+    def update_viewer_connection(self, viewer_connection: ViewerConnection) -> None:
+        pass
+
 class PremiumEditionStatus:
     def __init__(self, activity_month: date, premium_edition_active: bool):
         self.activity_month = activity_month
@@ -95,6 +112,17 @@ class PersistenceService:
         ': :type supervisor: Supervisor'
 
         supervisor.save()
+
+    # TODO: (IMS) Test, rename identifiers in these 3 methods:
+    def create_supervisor(self, framework_user: InboundIdentityToken, supervisor_id: SupervisorId) -> None:
+        framework_user.create_supervisor(self.supervisor_model, supervisor_id)
+
+    def save_supervisor(self, framework_user: InboundIdentityToken) -> None:
+        framework_user.save_supervisor()
+
+    def update_connection(self, framework_user: InboundIdentityToken, viewer_authentication_key: ViewerConnection
+                ) -> None:
+        framework_user.update_viewer_connection(viewer_authentication_key)
 
     def retrieve_viewer_connection(self, supervisor_id: SupervisorId) -> ViewerConnection:
         supervisor = self.supervisor_model.objects.get(supervisor_id=supervisor_id.value)

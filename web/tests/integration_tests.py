@@ -11,6 +11,8 @@ from web.services import AdministrationService
 
 # TODO: (IMS) Change from service tests to view tests
 class PersistenceServiceTest(TestCase):
+    fixtures = ['test_data.json']
+
     def setUp(self):
         self.candidate = core_service_factory.createPersistenceService()
 
@@ -39,10 +41,11 @@ class PersistenceServiceTest(TestCase):
         self.assertEqual(stubs.AUTHORIZATION_TOKEN, actual_connection.authorization_token)
 
     def test_increment_activity_count(self):
-        user = stubs.FRAMEWORK_USER_FUNCTION()
-        supervisor = core_service_factory.core_persistence_service2.objects.get(inbound_identity_token=user)
-        supervisor.supervisor_id = stubs.SUPERVISOR_ID_VALUE
-        supervisor.save()
+#         user = stubs.FRAMEWORK_USER_FUNCTION()
+#         supervisor = core_service_factory.core_persistence_service2.objects.get(inbound_identity_token=user)
+#         supervisor.supervisor_id = stubs.SUPERVISOR_ID_VALUE
+#         supervisor.save()
+        supervisor = core_service_factory.core_persistence_service2.objects.get(id=stubs.INBOUND_IDENTITY_TOKEN)
 
         activity = core_service_factory.core_persistence_service(supervisor=supervisor, activity_month=stubs.MONTH,
                                                                  activity_count=stubs.ACTIVITY_COUNT)

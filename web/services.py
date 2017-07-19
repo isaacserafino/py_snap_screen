@@ -3,7 +3,8 @@ from dropbox.oauth import DropboxOAuth2Flow
 from py_snap_screen import settings
 from web.core import PayPalPaymentProfile, monthly_limit_service, persistence_service, viewer_service, \
     supervisor_id_service, viewer_connection_service
-from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile, Dashboard
+from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile, Dashboard, InboundIdentityToken,\
+    ViewerConnection
 from web.models import PersistenceService
 from web.models import Snap
 from web.models import SupervisorId
@@ -55,6 +56,18 @@ class AdministrationService:
         flow = self._create_flow(session)
 
         return self.viewer_connection_service.start_creating_connection(flow)
+
+    # TODO: (IMS) Test, rename identifiers in these 3 methods:
+    def create_viewer_connection(self, framework_user: InboundIdentityToken) -> None:
+        supervisor_id = self.supervisor_id_service.generate()
+        self.persistence_service.create_supervisor(framework_user, supervisor_id)
+
+    def save_supervisor(self, framework_user: InboundIdentityToken) -> None:
+        self.persistence_service.save_supervisor(framework_user)
+
+    def update_connection(self, framework_user: InboundIdentityToken, viewer_authentication_key: ViewerConnection
+            ) -> None:
+        self.persistence_service.update_connection(framework_user, viewer_authentication_key)
 
     def _create_flow(self, session: dict) -> DropboxOAuth2Flow:
         return self.viewer_connection_service.create_flow_object(settings.DROPBOX_API_KEY, settings.DROPBOX_API_SECRET,

@@ -2,17 +2,15 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls.base import reverse
 import dropbox
 from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.ipn.models import PayPalIPN
 from paypal.standard.models import ST_PP_COMPLETED
 import shortuuid
-from social_django.models import UserSocialAuth
 
-from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile
+from web.models import MonthlyLimitService, PaymentNotification, PaymentProfile, InboundIdentityToken, SupervisorId, \
+    SupervisorStatus, ViewerConnection
 from web.models import PersistenceService
 from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
@@ -34,30 +32,7 @@ class Activity(models.Model):
     activity_count = models.IntegerField(default=0)
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance: User, created: bool, **kwargs):  # @UnusedVariable Because this method is an
-        # override
-
-    if created:
-        supervisor_id = shortuuid.ShortUUID().random(length=7)
-
-        Supervisor.objects.create(active=True, inbound_identity_token=instance, supervisor_id=supervisor_id)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance: User, **kwargs):  # @UnusedVariable Because this method is an override
-    instance.supervisor.save()
-
-
-@receiver(post_save, sender=UserSocialAuth)
-def save_user(sender, instance:UserSocialAuth, **kwargs):  # @UnusedVariable Because this method is an override
-    if 'access_token' in instance.extra_data:
-        supervisor = instance.user.supervisor
-        supervisor.viewer_authentication_key = instance.extra_data['access_token']
-    
-        supervisor.save()
-
-
+# Core service business objects
 class PayPalPaymentNotification(PaymentNotification):
     def __init__(self, notification: PayPalIPN):
         self.notification = notification
@@ -80,6 +55,25 @@ class PayPalPaymentProfile(PaymentProfile):
 
         return form.render()
 
+
+class DjangoInboundIdentityToken(InboundIdentityToken):
+    def __init__(self, django_user: User):
+        self.django_user = django_user
+
+    def create_supervisor(self, supervisor_model, supervisor_id: SupervisorId) -> None:
+        supervisor_model.objects.create(active=True, inbound_identity_token=self.django_user,
+                supervisor_id=supervisor_id.value)
+
+    # TODO: (IMS) Implement this method:
+    def retrieve_supervisor_status(self) -> SupervisorStatus:
+        pass
+
+    def save_supervisor(self) -> None:
+        self.django_user.supervisor.save()
+
+    def update_viewer_connection(self, viewer_connection: ViewerConnection) -> None:
+        self.django_user.supervisor.viewer_authentication_key = viewer_connection.authorization_token
+        self.save_supervisor()
 
 class CoreServiceFactory:
     core_monthly_limit_service = datetime.date

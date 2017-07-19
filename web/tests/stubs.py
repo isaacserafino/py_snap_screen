@@ -29,7 +29,7 @@ QUERY_PARAMS = {}
 SECRET = 'stub secret'
 SESSION = {}
 
-INBOUND_IDENTITY_TOKEN = 'johndoe'
+INBOUND_IDENTITY_TOKEN = 1
 FRAMEWORK_USER_FUNCTION = lambda: User.objects.get_or_create(username=INBOUND_IDENTITY_TOKEN)[0]
 
 MONTH = date(2012, 12, 1)
