@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'web/content.css' %}"/>
+    <link rel="stortcut icon" type="image/x-icon" href="{% static 'web/favicon.ico' %}"/>
 </head>
 <body>
 	<a href="http://www.snapscreenapp.com">
