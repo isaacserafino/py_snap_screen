@@ -111,10 +111,8 @@ class PaymentService:
         self.monthly_limit_service = monthly_limit_service
 
     def process_notification(self, payment_notification: PaymentNotification) -> None:
-        # TODO: (IMS) Get Supervisor ID
-        supervisor_id = None
-
         if payment_notification.validate():
+            supervisor_id = payment_notification.get_supervisor_id()
             self.monthly_limit_service.renew_premium_edition_for_one_month(supervisor_id)
 
     def retrieve_profile(self) -> PaymentProfile:

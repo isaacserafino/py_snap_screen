@@ -37,19 +37,23 @@ class PayPalPaymentNotification(PaymentNotification):
     def __init__(self, notification: PayPalIPN):
         self.notification = notification
 
+    def get_supervisor_id(self) -> SupervisorId:
+        return SupervisorId(self.notification.custom)
+
     def validate(self) -> bool:
-        # TODO: (IMS) Verify amount, currency, etc.?
         return (self.notification.payment_status == ST_PP_COMPLETED and self.notification.receiver_email 
-                == 'i@findmercy.com' and self.notification.business == 'i@findmercy.com')
+                == 'i@findmercy.com' and self.notification.business == 'i@findmercy.com' and self.notification.amount
+                == '5.00' and self.notification.currency_code == 'USD')
 
 
 class PayPalPaymentProfile(PaymentProfile):
     def __init__(self, configuration: dict):
         self.configuration = configuration
 
-    def retrieve_form(self) -> str:
+    def retrieve_form(self, supervisor_id: SupervisorId) -> str:
         configuration = self.configuration
         configuration['notify_url'] += reverse('paypal-ipn')
+        configuration['custom'] = supervisor_id.value
 
         form = PayPalPaymentsForm(button_type=PayPalPaymentsForm.SUBSCRIBE, initial=configuration)
 

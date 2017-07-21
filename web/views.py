@@ -19,7 +19,7 @@ class AdministrationView(LoginRequiredMixin, TemplateView):
         payment_profile = payment_service.retrieve_profile()
         ': :type payment_profile: PaymentProfile'
 
-        payment_form = payment_profile.retrieve_form()
+        payment_form = payment_profile.retrieve_form(dashboard.supervisor_id)
         ': :type payment_form: str'
 
         model = {'dashboard':dashboard, 'payment_form': payment_form}

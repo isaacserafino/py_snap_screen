@@ -7,24 +7,28 @@ from shortuuid import ShortUUID
 
 
 # Business Model
+class SupervisorId:
+    def __init__(self, value: str):
+        self.value = value
+
 class PaymentNotification(ABC):
+    @abstractmethod
+    def get_supervisor_id(self) -> SupervisorId:
+        pass
+
     @abstractmethod
     def validate(self) -> bool:
         pass
 
 class PaymentProfile(ABC):
     @abstractmethod
-    def retrieve_form(self) -> str:
+    def retrieve_form(self, supervisor_id: SupervisorId) -> str:
         pass
 
 class Snap:
     def __init__(self, filename: str, image: bytes):
         self.filename = filename
         self.image = image
-
-class SupervisorId:
-    def __init__(self, value: str):
-        self.value = value
 
 class ViewerConnection:
     def __init__(self, active: bool, authorization_token: str):
