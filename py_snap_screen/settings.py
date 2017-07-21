@@ -150,6 +150,13 @@ X_FRAME_OPTIONS = 'DENY'
 PAYPAL_PROFILE = {
     "business": "i@findmercy.com",
     "amount": "5.00",
+
+    "a3": "5.00",                      # monthly price
+    "p3": 1,                           # duration of each unit (depends on unit)
+    "t3": "M",                         # duration unit ("M for Month")
+    "src": "1",                        # make payments recur
+    "sra": "1",                        # reattempt payment on payment error
+
     "item_name": "Snap Screen Premium Edition Monthly Subscription",
     # TODO: (IMS) Placeholder:
     "invoice": "unique-invoice-id",

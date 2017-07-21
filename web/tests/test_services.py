@@ -6,6 +6,7 @@ from py_snap_screen import settings
 from web import services
 from web.services import AdministrationService, MonitoringService, PaymentService
 from web.tests import stubs
+from web.models import PaymentNotification
 
 
 class AdministrationServiceTest(TestCase):
@@ -93,14 +94,21 @@ class AdministrationServiceTest(TestCase):
                 settings.DROPBOX_API_SECRET, settings.DROPBOX_CALLBACK_URL, session, "dropbox-auth-csrf-token")
 
 
-# TODO: (IMS) Implement
 class PaymentServiceTest(TestCase):
     @mock.patch("web.services.persistence_service", autospec=True)
-    @mock.patch("web.services.monthly_limit_service", autospec=True)
-    def setUp(self, mock_monthly_limit_service, mock_persistence_service):
-        self.mock_monthly_limit_service = mock_monthly_limit_service
+    def setUp(self, mock_persistence_service):
         self.mock_persistence_service = mock_persistence_service
-        self.candidate = PaymentService(None, services.monthly_limit_service, services.persistence_service)
+        self.candidate = PaymentService(services.payment_profile, services.persistence_service)
+
+    # TODO: (IMS) Implement
+    def test_process_notification(self):
+        mock_notification = mock.create_autospec(PaymentNotification)
+        mock_notification.validate.return_value = True
+        mock_notification.get_supervisor_id.return_value = stubs.SUPERVISOR_ID
+        self.candidate.process_notification(mock_notification)
+
+        self.mock_persistence_service.update_premium_expiration(stubs.SUPERVISOR_ID,
+                stubs.PREMIUM_EDITION_EXPIRATION_DATE)
 
 
 class MonitoringServiceTest(TestCase):

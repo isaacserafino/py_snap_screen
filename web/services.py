@@ -106,14 +106,17 @@ class MonitoringService:
 
 
 class PaymentService:
-    def __init__(self, payment_profile: PaymentProfile, monthly_limit_service: MonthlyLimitService):
+    def __init__(self, payment_profile: PaymentProfile, persistence_service: PersistenceService):
         self.payment_profile = payment_profile
-        self.monthly_limit_service = monthly_limit_service
+        self.persistence_service = persistence_service
 
     def process_notification(self, payment_notification: PaymentNotification) -> None:
         if payment_notification.validate():
             supervisor_id = payment_notification.get_supervisor_id()
-            self.monthly_limit_service.renew_premium_edition_for_one_month(supervisor_id)
+
+            # TODO: (IMS) Implement
+            premium_expiration = None
+            self.persistence_service.update_premium_expiration(supervisor_id, premium_expiration)
 
     def retrieve_profile(self) -> PaymentProfile:
         return self.payment_profile
@@ -125,4 +128,4 @@ administration_service = AdministrationService(monthly_limit_service, persistenc
         viewer_connection_service)
 
 payment_profile = PayPalPaymentProfile(settings.PAYPAL_PROFILE)
-payment_service = PaymentService(payment_profile, monthly_limit_service)
+payment_service = PaymentService(payment_profile, persistence_service)

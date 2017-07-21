@@ -10,13 +10,16 @@ class PaymentSignalTest(TestCase):
         self.candidate = PaymentSignal()
 
     @mock.patch('web.signals.valid_ipn_received', autospec=True)
-    def test_setup(self, mock_payment_signal):
+    def test_setup(self, mock_payment_signal) -> None:
         self.candidate.setup()
 
         mock_payment_signal.connect.assert_called_once_with(self.candidate.receive_payment_notification)
 
-    # TODO: (IMS) Implement test
-    def test_receive_payment_notification(self):
-        mock_notification = mock.create_autospec(PayPalIPN)
+    @mock.patch('web.signals.PayPalPaymentNotification', autospec=True)
+    @mock.patch('web.signals.payment_service', autospec=True)
+    def test_receive_payment_notification(self, mock_payment_service, mock_payment_notification) -> None:
+        mock_core_notification = mock.create_autospec(PayPalIPN)
 
-        self.candidate.receive_payment_notification(mock_notification)
+        self.candidate.receive_payment_notification(mock_core_notification)
+        mock_payment_notification.assert_called_once_with(mock_core_notification)
+        mock_payment_service.process_notification.assert_called_once_with(mock_payment_notification.return_value)

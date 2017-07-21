@@ -15,7 +15,8 @@ class PaymentSignal:
         valid_ipn_received.connect(self.receive_payment_notification)
 
     # TODO: (IMS) Need **kwargs?
-    def receive_payment_notification(self, sender: PayPalIPN):
+    def receive_payment_notification(self, sender: PayPalIPN, **kwargs):  # @UnusedVariable Because this method is a
+            # signal receiver
         notification = PayPalPaymentNotification(sender)
 
         payment_service.process_notification(notification)
