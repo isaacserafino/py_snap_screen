@@ -121,9 +121,7 @@ STATIC_URL = '/static/'
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_ROOT = u'/home/isaacserafino/py_snap_screen/media'
 MEDIA_URL = '/media/'
-STATIC_ROOT = u'/home/isaacserafino/py_snap_screen/static'
 STATIC_URL = '/static/'
 
 
@@ -146,28 +144,5 @@ CSRF_COOKIE_HTTPONLY = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
-
-PAYPAL_PROFILE = {
-    "business": "i@findmercy.com",
-    "amount": "5.00",
-
-    "a3": "5.00",                      # monthly price
-    "p3": 1,                           # duration of each unit (depends on unit)
-    "t3": "M",                         # duration unit ("M for Month")
-    "src": "1",                        # make payments recur
-    "sra": "1",                        # reattempt payment on payment error
-
-    "item_name": "Snap Screen Premium Edition Monthly Subscription",
-    # TODO: (IMS) Placeholder:
-    "invoice": "unique-invoice-id",
-
-    # Note: This is completed within code once available:
-    "notify_url": "https://isaacserafino.pythonanywhere.com",
-
-    "return_url": "https://isaacserafino.pythonanywhere.com/supervisor/",
-    "cancel_return": "https://isaacserafino.pythonanywhere.com/supervisor/",
-}
-
-PAYPAL_TEST = True
 
 from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings
