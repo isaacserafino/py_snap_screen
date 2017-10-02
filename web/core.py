@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -16,6 +17,7 @@ from web.models import SupervisorIdService
 from web.models import ViewerConnectionService
 from web.models import ViewerService
 
+logger = logging.getLogger(__name__)
 
 # Persistence Models
 class Supervisor(models.Model):
@@ -65,6 +67,11 @@ class DjangoInboundIdentityToken(InboundIdentityToken):
         self.django_user = django_user
 
     def create_supervisor(self, supervisor_model, supervisor_id: SupervisorId) -> None:
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('DjangoInboundIdentityToken.create_supervisor(supervisor_model="' + repr(supervisor_model)
+                    + '", supervisor_id(.value)="' + supervisor_id.value + '"), self.django_user="'
+                    + repr(self.django_user) + '"')
+
         supervisor_model.objects.create(active=True, inbound_identity_token=self.django_user,
                 supervisor_id=supervisor_id.value)
 
@@ -73,9 +80,17 @@ class DjangoInboundIdentityToken(InboundIdentityToken):
         pass
 
     def save_supervisor(self) -> None:
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('DjangoInboundIdentityToken.save_supervisor(), self.django_user="' + repr(self.django_user)
+                    + '"')
+ 
         self.django_user.supervisor.save()
 
     def update_viewer_connection(self, viewer_connection: ViewerConnection) -> None:
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('DjangoInboundIdentityToken.update_viewer_connection(viewer_connection(.authorization_token)="'
+                    + viewer_connection.authorization_token +'"), self.django_user="' + repr(self.django_user) + '"')
+
         self.django_user.supervisor.viewer_authentication_key = viewer_connection.authorization_token
         self.save_supervisor()
 

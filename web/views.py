@@ -8,6 +8,8 @@ from django.views.generic import TemplateView, View
 from web.models import Snap, SupervisorId
 from web.services import monitoring_service, administration_service, payment_service
 
+from web.signals import PaymentSignal
+
 
 class AdministrationView(LoginRequiredMixin, TemplateView):
     template_name = "supervisor.djhtml"
@@ -72,3 +74,8 @@ class ViewerConnectionCallbackView(LoginRequiredMixin, TemplateView):
         supervisor_id = administration_service.retrieve_supervisor_id(request.user)
 
         return render(request, self.template_name, {'supervisor_id': supervisor_id})
+
+
+# Must put signals here; can't put them in app ready because app must be ready before including User
+payment_signal = PaymentSignal()
+payment_signal.setup()
