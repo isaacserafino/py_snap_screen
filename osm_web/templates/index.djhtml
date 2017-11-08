@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Open Software Market</title> 
+	{% include 'includes/head.djhtml' %}
+</head>
+<body>
+	<img id="logo" width="558" height="496" src="{% static 'osm_web/osm_logo.png' %}" alt="Open Software Market&trade;"/>
+	<div id="content">
+	</div>
+</body>
+</html>

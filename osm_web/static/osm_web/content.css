@@ -1,0 +1,33 @@
+body {
+	background-color: #9bf;
+	text-align: center
+}
+
+.button {
+	background-clip: padding-box;
+	background-color: #b6d6ff;
+	border: 2px outset #9bf;
+	border-radius: 5px;
+	box-shadow: 3px 3px 5px rgba(9, 11, 16, 0.4);
+	font-weight: bold;
+	line-height: 2.5em;
+	padding: 0.5em;
+	text-decoration: none;
+}
+
+.button:hover {
+	background-color: #bdf;
+}
+
+#content, #logo {
+	margin: 0 auto;
+}
+
+#content {
+	background-color: #acf;
+	color: #635;
+	font-family: sans-serif;
+	max-width: 900px;
+	padding: 1em 4em;
+	text-align: left;
+}

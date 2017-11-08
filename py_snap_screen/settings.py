@@ -36,7 +36,9 @@ INSTALLED_APPS = [
     # OpenID authentication
     'social_django',
 
-    'web'
+    'web',
+
+    'osm_web'
 ]
 
 MIDDLEWARE = [
