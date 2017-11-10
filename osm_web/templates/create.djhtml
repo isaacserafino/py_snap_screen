@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Open Software Market</title> 
+    <title>Create Project - Open Software Market</title> 
 	{% include 'includes/head.djhtml' %}
 </head>
 <body>
@@ -15,16 +15,15 @@
 	<div id="content">
 		<h1>Market</h1>
 
-		<h2>Projects</h2>
-		<ul>
-		{% for project in object_list %}
-		    <li>{{ project.description }}</li>
-		{% empty %}
-		    <li>No projects yet.</li>
-		{% endfor %}
-		</ul>
+		<h2>Create Project</h2>
 
-		<a class="button" href="{% url 'project-add' %}">Create Project</a>
+		<p>Some text characters may be removed for quality.</p>
+
+		<form action="" method="post">{% csrf_token %}
+		    {{ form.as_p }}
+		    <button type="submit" class="button">Create</button>
+		    <a class="button" href="{% url 'project-list' %}">Cancel</a>
+		</form>
 
 		<hr/>
 		<p>Version 0.1.1</p>

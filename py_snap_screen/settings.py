@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 
     'web',
 
+    # OSM apps
+    'django_bleach',
     'osm_web'
 ]
 
