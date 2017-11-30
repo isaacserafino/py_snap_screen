@@ -19,7 +19,7 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
 
 class ProjectDetail(DetailView):
     template_name = "detail.djhtml"
-    model = Project
+    queryset = Project.objects.filter(active=True)
 
 
 class ProjectList(ListView):
