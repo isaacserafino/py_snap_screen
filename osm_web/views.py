@@ -7,14 +7,8 @@ from django.views.generic.list import ListView
 from osm_web.models import Project
 
 
-class ProjectList(ListView):
-    template_name = "index.djhtml"
-    queryset = Project.objects.filter(active=True)
-
-
-class ProjectDetail(DetailView):
-    template_name = "detail.djhtml"
-    model = Project
+class LoginView(TemplateView):
+    template_name = "login.djhtml"
 
 
 class ProjectCreate(LoginRequiredMixin, CreateView):
@@ -23,5 +17,11 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
     fields = ['description']
 
 
-class LoginView(TemplateView):
-    template_name = "login.djhtml"
+class ProjectDetail(DetailView):
+    template_name = "detail.djhtml"
+    model = Project
+
+
+class ProjectList(ListView):
+    template_name = "index.djhtml"
+    queryset = Project.objects.filter(active=True)
