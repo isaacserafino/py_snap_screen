@@ -1,10 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
 
 from osm_web.models import Project
-from django.views.generic.list import ListView
-from django.views.generic.detail import DetailView
 
 
 class ProjectList(ListView):
@@ -13,7 +13,7 @@ class ProjectList(ListView):
 
 
 class ProjectDetail(DetailView):
-    template_name = "index.djhtml"
+    template_name = "detail.djhtml"
     model = Project
 
 

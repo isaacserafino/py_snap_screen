@@ -32,6 +32,7 @@ urlpatterns = [
 
     # OSM path mappings
     url(r'^open_software_market/project/list/', osm_web.views.ProjectList.as_view(), name='project-list'),
-    url(r'^open_software_market/project/view/', osm_web.views.ProjectDetail.as_view()),
+    url(r'^open_software_market/project/view/(?P<slug>[-\w]+)', osm_web.views.ProjectDetail.as_view(),
+            name='project-detail'),
     url(r'^open_software_market/project/add/', osm_web.views.ProjectCreate.as_view(), name='project-add')
 ]

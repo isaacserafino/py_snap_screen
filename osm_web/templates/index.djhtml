@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Open Software Market</title> 
+    <title>Projects - Open Software Market</title> 
 	{% include 'includes/head.djhtml' %}
 </head>
 <body>
@@ -9,18 +9,19 @@
 	<img id="logo" width="558" height="496" src="{% static 'osm_web/osm_logo.png' %}"
 			alt="Open Software Market&trade;"/>
 
+	<h1>Open Software Market&trade;</h1>
+
 	<p>
 		<a class="button" href="/accounts/logout/?next=/open_software_market/project/add/">Logout</a>
 	</p>
 	<div id="content">
-		<h1>Market</h1>
-
 		<h2>Projects</h2>
+
 		<ul>
 		{% for project in object_list %}
-		    <li>{{ project.description }}</li>
+		    <li><a href="{% url 'project-detail' project.slug %}">{{ project.description|truncatechars:80 }}</a></li>
 		{% empty %}
-		    <li>No projects yet.</li>
+		    <li>No projects yet</li>
 		{% endfor %}
 		</ul>
 
