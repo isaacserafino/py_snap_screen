@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from osm_web.models import Project
@@ -25,3 +25,9 @@ class ProjectDetail(DetailView):
 class ProjectList(ListView):
     template_name = "index.djhtml"
     queryset = Project.objects.filter(active=True)
+
+
+class ProjectUpdate(LoginRequiredMixin, UpdateView):
+    template_name = "update.djhtml"
+    queryset = Project.objects.filter(active=True)
+    fields = ['description']

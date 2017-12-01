@@ -20,6 +20,10 @@
 		<h3>Description</h3>
 		<p>{{ object.description }}</p>
 
+		{% if user.is_authenticated %}
+			<a class="button" href="{% url 'project-update' object.slug %}">Edit</a>
+		{% endif %}
+
 		<a class="button" href="{% url 'project-list' %}">Other Projects</a>
 
 		<hr/>
