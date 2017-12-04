@@ -17,6 +17,17 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
     fields = ['description']
 
 
+class ProjectDeactivate(LoginRequiredMixin, UpdateView):
+    template_name = "deactivate.djhtml"
+    queryset = Project.objects.filter(active=True)
+    fields = ['active']
+
+    def form_valid(self, form):
+        self.object.active = False
+
+        return super(ProjectDeactivate, self).form_valid(form)
+
+
 class ProjectDetail(DetailView):
     template_name = "detail.djhtml"
     queryset = Project.objects.filter(active=True)

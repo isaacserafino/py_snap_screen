@@ -22,6 +22,7 @@
 
 		{% if user.is_authenticated %}
 			<a class="button" href="{% url 'project-update' object.slug %}">Edit</a>
+			<a class="button" href="{% url 'project-deactivate' object.slug %}">Delete</a>
 		{% endif %}
 
 		<a class="button" href="{% url 'project-list' %}">Other Projects</a>
