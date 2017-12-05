@@ -20,7 +20,7 @@
 		<h3>Description</h3>
 		<p>{{ object.description }}</p>
 
-		{% if user.is_authenticated %}
+		{% if user.is_authenticated and user == object.admin %}
 			<a class="button" href="{% url 'project-update' object.slug %}">Edit</a>
 			<a class="button" href="{% url 'project-deactivate' object.slug %}">Delete</a>
 		{% endif %}

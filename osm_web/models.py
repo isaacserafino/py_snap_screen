@@ -1,5 +1,6 @@
 import re
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls.base import reverse
 from django_bleach.models import BleachField
@@ -7,7 +8,8 @@ from django_extensions.db.fields import AutoSlugField
 
 
 class BetterBleachField(BleachField):
-    def __init__(self):
+
+    def __init__(self, *args, **kwargs):
         super(BetterBleachField, self).__init__(max_length=256, allowed_tags=[None], strip_tags=True)
 
     def pre_save(self, model_instance, add):
@@ -19,6 +21,7 @@ class BetterBleachField(BleachField):
 
 class Project(models.Model):
     active = models.BooleanField(default=True)
+    admin = models.ForeignKey(User)
     description = BetterBleachField()
     slug = AutoSlugField(unique=True, populate_from='description')
 

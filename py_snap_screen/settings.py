@@ -36,12 +36,13 @@ INSTALLED_APPS = [
     # OpenID authentication
     'social_django',
 
-    # For AutoSlugField
-    'django_extensions',
-
     'web',
 
     # OSM apps
+
+    # For AutoSlugField
+    'django_extensions',
+
     'django_bleach',
     'osm_web'
 ]
