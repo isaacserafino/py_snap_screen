@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^open_software_market/project/add/', osm_web.views.ProjectCreate.as_view(), name='project-add'),
 
     url(r'^open_software_market/project/delete/(?P<slug>[-\w]+)', osm_web.views.ProjectDeactivate.as_view(),
-            name='project-deactivate')
+            name='project-deactivate'),
 
+    url(r'^open_software_market/trade/ask/(?P<slug>[-\w]+)', osm_web.views.TradeAsk.as_view(), name='trade-ask')
 ]

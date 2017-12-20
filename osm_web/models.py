@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls.base import reverse
 from django_bleach.models import BleachField
@@ -27,3 +28,22 @@ class Project(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse('project-list')
+
+
+class Ask(models.Model):
+    active = models.BooleanField(default=True)
+    asker = models.ForeignKey(User)
+    price = models.PositiveIntegerField(validators=[MinValueValidator(1),
+            MaxValueValidator(1000000000)])
+
+    project = models.ForeignKey(Project)
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+
+    def get_absolute_url(self) -> str:
+        return reverse('project-detail', args=[self.project.slug])
+
+
+class Stake(models.Model):
+    holder = models.ForeignKey(User)
+    project = models.ForeignKey(Project)
+    quantity = models.PositiveIntegerField()

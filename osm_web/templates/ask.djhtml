@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Sell - Open Software Market</title> 
+	{% include 'includes/head.djhtml' %}
+</head>
+<body>
+	{% load staticfiles %}
+	<img id="logo" width="558" height="496" src="{% static 'osm_web/osm_logo.png' %}"
+			alt="Open Software Market&trade;"/>
+
+	<h1>Open Software Market&trade;</h1>
+
+	<p>
+		<a class="button" href="/accounts/logout/?next=/open_software_market/project/list/">Logout</a>
+	</p>
+	<div id="content">
+		<h2>Sell Shares</h2>
+
+		<p><strong>Project:</strong> {{ project.description|truncatechars:80 }} </p>
+
+		<p>Place an order to sell at the specified asking price.</p>
+
+		<form action="" method="post">{% csrf_token %}
+		    {{ form.as_p }}
+		    <button type="submit" class="button">Ask</button>
+		    <a class="button" href="{% url 'project-list' %}">Cancel</a>
+		</form>
+
+		<hr/>
+		<p>Version 0.1.1</p>
+	</div>
+</body>
+</html>
