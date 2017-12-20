@@ -155,4 +155,6 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
+DEFAULT_SHARES_PER_PROJECT = 100
+
 from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings

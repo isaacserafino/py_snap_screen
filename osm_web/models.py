@@ -29,6 +29,9 @@ class Project(models.Model):
     def get_absolute_url(self) -> str:
         return reverse('project-list')
 
+    def held_by(self, user: User) -> bool:
+        return self.stake_set.filter(holder=user, quantity__gt=0).exists()
+
 
 class Ask(models.Model):
     active = models.BooleanField(default=True)

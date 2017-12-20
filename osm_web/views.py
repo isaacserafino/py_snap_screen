@@ -1,13 +1,15 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction
 from django.forms.models import ModelForm
 from django.http.response import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from osm_web.models import Project, Ask
-from django.shortcuts import get_object_or_404
+from osm_web.models import Project, Ask, Stake
+from py_snap_screen import settings
 
 
 class AdminRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
@@ -15,6 +17,13 @@ class AdminRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
 
     def test_func(self):
         return self.request.user == self.get_object().admin
+
+
+class StakeholderRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
+    raise_exception = True
+
+    def test_func(self):
+        return self.retrieve_related_project().held_by(self.request.user)
 
 
 class LoginView(TemplateView):
@@ -26,10 +35,16 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
     model = Project
     fields = ['description']
 
+    @transaction.atomic
     def form_valid(self, form:ModelForm) -> HttpResponse:
         self.object = form.save(commit=False)
         self.object.admin = self.request.user
         self.object.save()
+
+        stake = Stake.objects.create(holder=self.request.user,
+                project=self.object, quantity=settings.DEFAULT_SHARES_PER_PROJECT)
+
+        stake.save()
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -49,6 +64,11 @@ class ProjectDetail(DetailView):
     template_name = "detail.djhtml"
     queryset = Project.objects.filter(active=True)
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetail, self).get_context_data(**kwargs)
+        context['user_is_stakeholder'] = self.object.held_by(self.request.user)
+        return context
+
 
 class ProjectList(ListView):
     template_name = "index.djhtml"
@@ -61,12 +81,12 @@ class ProjectUpdate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     fields = ['description']
 
 
-class TradeAsk(LoginRequiredMixin, CreateView):
+class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
     template_name = "ask.djhtml"
     model = Ask
     fields = ['price', 'quantity']
 
-    def retrieve_related_project(self):
+    def retrieve_related_project(self) -> Project:
         slug = self.kwargs.get('slug', None)
         return get_object_or_404(Project, slug=slug)
 
