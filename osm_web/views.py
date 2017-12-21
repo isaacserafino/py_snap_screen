@@ -19,11 +19,23 @@ class AdminRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
         return self.request.user == self.get_object().admin
 
 
-class StakeholderRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
-    raise_exception = True
+class StakeholderRequiredMixin:
 
-    def test_func(self):
-        return self.retrieve_related_project().held_by(self.request.user)
+    def retrieve_related_stake(self):
+        project_slug = self.kwargs.get('slug', None)
+
+        return get_object_or_404(Stake, project__slug=project_slug,
+                project__active=True, quantity__gt=0, holder=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        stake = self.retrieve_related_stake()
+
+        context = super(StakeholderRequiredMixin, self).get_context_data(
+                **kwargs)
+
+        context['project'] = stake.project
+
+        return context
 
 
 class LoginView(TemplateView):
@@ -66,7 +78,11 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
-        context['user_is_stakeholder'] = self.object.held_by(self.request.user)
+        related_stake = self.object.stake_set.filter(quantity__gt=0, 
+                holder=self.request.user)
+
+        context['user_is_stakeholder'] = related_stake.exists()
+
         return context
 
 
@@ -86,19 +102,9 @@ class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
     model = Ask
     fields = ['price', 'quantity']
 
-    def retrieve_related_project(self) -> Project:
-        slug = self.kwargs.get('slug', None)
-        return get_object_or_404(Project, slug=slug)
-
-    def get_context_data(self, **kwargs):
-        context = super(TradeAsk, self).get_context_data(**kwargs)
-        context['project'] = self.retrieve_related_project()
-        return context
-
     def form_valid(self, form:ModelForm) -> HttpResponse:
         self.object = form.save(commit=False)
-        self.object.asker = self.request.user
-        self.object.project = self.retrieve_related_project()
+        self.object.stake = self.retrieve_related_stake()
         self.object.save()
 
         return HttpResponseRedirect(self.get_success_url())

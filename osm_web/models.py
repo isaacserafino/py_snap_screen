@@ -29,24 +29,20 @@ class Project(models.Model):
     def get_absolute_url(self) -> str:
         return reverse('project-list')
 
-    def held_by(self, user: User) -> bool:
-        return self.stake_set.filter(holder=user, quantity__gt=0).exists()
-
-
-class Ask(models.Model):
-    active = models.BooleanField(default=True)
-    asker = models.ForeignKey(User)
-    price = models.PositiveIntegerField(validators=[MinValueValidator(1),
-            MaxValueValidator(1000000000)])
-
-    project = models.ForeignKey(Project)
-    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-
-    def get_absolute_url(self) -> str:
-        return reverse('project-detail', args=[self.project.slug])
-
 
 class Stake(models.Model):
     holder = models.ForeignKey(User)
     project = models.ForeignKey(Project)
     quantity = models.PositiveIntegerField()
+
+
+class Ask(models.Model):
+    active = models.BooleanField(default=True)
+    price = models.PositiveIntegerField(validators=[MinValueValidator(1),
+            MaxValueValidator(1000000000)])
+
+    stake = models.ForeignKey(Stake)
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+
+    def get_absolute_url(self) -> str:
+        return reverse('project-detail', args=[self.stake.project.slug])
