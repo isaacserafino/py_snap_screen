@@ -103,8 +103,18 @@ class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
     fields = ['price', 'quantity']
 
     def form_valid(self, form:ModelForm) -> HttpResponse:
-        self.object = form.save(commit=False)
-        self.object.stake = self.retrieve_related_stake()
-        self.object.save()
+        ask = form.save(commit=False)
+        self.object = ask
+
+        ask.stake = self.retrieve_related_stake()
+
+        existing_offers = ask.stake.existing_offers()
+
+        if ask.quantity > ask.stake.quantity - existing_offers:
+            form.add_error('quantity', 'That many shares are not available.')
+
+            return super(TradeAsk, self).form_invalid(form)
+
+        ask.save()
 
         return HttpResponseRedirect(self.get_success_url())

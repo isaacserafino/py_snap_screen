@@ -6,6 +6,7 @@ from django.db import models
 from django.urls.base import reverse
 from django_bleach.models import BleachField
 from django_extensions.db.fields import AutoSlugField
+from django.db.models.aggregates import Sum
 
 
 class BetterBleachField(BleachField):
@@ -34,6 +35,10 @@ class Stake(models.Model):
     holder = models.ForeignKey(User)
     project = models.ForeignKey(Project)
     quantity = models.PositiveIntegerField()
+
+    def existing_offers(self) -> int:
+        return int(Ask.objects.filter(stake=self,
+                active=True).aggregate(sum=Sum('quantity'))['sum'] or 0)
 
 
 class Ask(models.Model):
