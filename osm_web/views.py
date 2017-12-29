@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction
 from django.forms.models import ModelForm
-from django.http.response import HttpResponseRedirect, HttpResponse
+from django.http.response import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView, SingleObjectMixin
@@ -13,10 +13,12 @@ from py_snap_screen import settings
 
 
 class AdminRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
-    raise_exception = True
 
     def test_func(self):
-        return self.request.user == self.get_object().admin
+        if self.request.user == self.get_object().admin:
+            return True
+
+        raise Http404
 
 
 class StakeholderRequiredMixin:
