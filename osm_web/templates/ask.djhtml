@@ -24,7 +24,7 @@
 		<form action="" method="post">{% csrf_token %}
 		    {{ form.as_p }}
 		    <button type="submit" class="button">Ask</button>
-		    <a class="button" href="{% url 'project-list' %}">Cancel</a>
+		    <a class="button" href="{% url 'project-detail' project.slug %}">Cancel</a>
 		</form>
 
 		<hr/>
