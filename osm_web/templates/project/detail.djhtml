@@ -1,0 +1,25 @@
+{% extends '../base.djhtml' %}
+
+{% block content %}
+	<h2>{% block title %}Project Detail{% endblock %}</h2>
+
+	<h3>Description</h3>
+	<p>{{ object.description }}</p>
+
+	{% if user.is_authenticated %}
+		{% if user_is_stakeholder %}
+			<div>
+				<a class="button" href="{% url 'trade-ask' object.slug %}">Sell</a>
+			</div>
+		{% endif %}
+
+		{% if user == object.admin %}
+			<div>
+				<a class="button" href="{% url 'project-update' object.slug %}">Edit</a>
+				<a class="button" href="{% url 'project-deactivate' object.slug %}">Delete</a>
+			</div>
+		{% endif %}
+	{% endif %}
+
+	<a class="button" href="{% url 'project-list' %}">Other Projects</a>
+{% endblock %}

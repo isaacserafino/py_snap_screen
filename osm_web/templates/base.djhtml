@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>{% block title %}{% endblock %} - Open Software Market</title> 
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static 'osm_web/content.css' %}"/>
+	<link rel="stortcut icon" type="image/x-icon" href="{% static 'osm_web/favicon.ico' %}"/>
+</head>
+<body>
+	<img id="logo" width="480" height="480" src="{% static 'osm_web/osm_logo.png' %}"
+			alt="Open Software Market&trade;"/>
+
+	<h1>Open Software Market&trade;</h1>
+
+	<p>
+		<a class="button" href="/accounts/logout/?next=/open_software_market/project/add/">Logout</a>
+	</p>
+	<div id="content">
+		{% block content %}
+		{% endblock %}
+
+		<hr/>
+		<p>Version 0.2.0</p>
+	</div>
+</body>
+</html>

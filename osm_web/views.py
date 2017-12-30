@@ -1,51 +1,18 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.forms.models import ModelForm
-from django.http.response import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import get_object_or_404
-from django.views.generic import TemplateView
-from django.views.generic.detail import DetailView, SingleObjectMixin
+from django.http.response import HttpResponseRedirect, HttpResponse
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from osm_web.mixins import AdminRequiredMixin, StakeholderRequiredMixin
 from osm_web.models import Project, Ask, Stake
 from py_snap_screen import settings
 
 
-class AdminRequiredMixin(UserPassesTestMixin, SingleObjectMixin):
-
-    def test_func(self):
-        if self.request.user == self.get_object().admin:
-            return True
-
-        raise Http404
-
-
-class StakeholderRequiredMixin:
-
-    def retrieve_related_stake(self):
-        project_slug = self.kwargs.get('slug', None)
-
-        return get_object_or_404(Stake, project__slug=project_slug,
-                project__active=True, quantity__gt=0, holder=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        stake = self.retrieve_related_stake()
-
-        context = super(StakeholderRequiredMixin, self).get_context_data(
-                **kwargs)
-
-        context['project'] = stake.project
-
-        return context
-
-
-class LoginView(TemplateView):
-    template_name = "login.djhtml"
-
-
 class ProjectCreate(LoginRequiredMixin, CreateView):
-    template_name = "create.djhtml"
+    template_name = "project/create.djhtml"
     model = Project
     fields = ['description']
 
@@ -64,7 +31,7 @@ class ProjectCreate(LoginRequiredMixin, CreateView):
 
 
 class ProjectDeactivate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
-    template_name = "deactivate.djhtml"
+    template_name = "project/deactivate.djhtml"
     queryset = Project.objects.filter(active=True)
     fields = ['active']
 
@@ -75,12 +42,12 @@ class ProjectDeactivate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
 
 
 class ProjectDetail(DetailView):
-    template_name = "detail.djhtml"
+    template_name = "project/detail.djhtml"
     queryset = Project.objects.filter(active=True)
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
-        related_stake = self.object.stake_set.filter(quantity__gt=0, 
+        related_stake = self.object.stake_set.filter(quantity__gt=0,
                 holder=self.request.user)
 
         context['user_is_stakeholder'] = related_stake.exists()
@@ -89,18 +56,18 @@ class ProjectDetail(DetailView):
 
 
 class ProjectList(ListView):
-    template_name = "index.djhtml"
+    template_name = "project/index.djhtml"
     queryset = Project.objects.filter(active=True)
 
 
 class ProjectUpdate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
-    template_name = "update.djhtml"
+    template_name = "project/update.djhtml"
     queryset = Project.objects.filter(active=True)
     fields = ['description']
 
 
 class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
-    template_name = "ask.djhtml"
+    template_name = "trade/ask.djhtml"
     model = Ask
     fields = ['price', 'quantity']
 

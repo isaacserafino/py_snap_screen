@@ -1,0 +1,15 @@
+{% extends '../base.djhtml' %}
+
+{% block content %}
+	<h2>{% block title %}Projects{% endblock %}</h2>
+
+	<ul>
+	{% for project in object_list %}
+	    <li><a href="{% url 'project-detail' project.slug %}">{{ project.description|truncatechars:80 }}</a></li>
+	{% empty %}
+	    <li>No projects yet</li>
+	{% endfor %}
+	</ul>
+	
+	<a class="button" href="{% url 'project-add' %}">Create Project</a>
+{% endblock %}

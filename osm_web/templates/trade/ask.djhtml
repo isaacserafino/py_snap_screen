@@ -1,0 +1,15 @@
+{% extends '../base.djhtml' %}
+
+{% block content %}
+	<h2>{% block title %}Sell Shares{% endblock %}</h2>
+
+	<p><strong>Project:</strong> {{ project.description|truncatechars:80 }} </p>
+
+	<p>Place an order to sell at the specified asking price.</p>
+
+	<form action="" method="post">{% csrf_token %}
+	    {{ form.as_p }}
+	    <button type="submit" class="button">Ask</button>
+	    <a class="button" href="{% url 'project-detail' project.slug %}">Cancel</a>
+	</form>
+{% endblock %}

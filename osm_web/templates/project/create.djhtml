@@ -1,0 +1,13 @@
+{% extends '../base.djhtml' %}
+
+{% block content %}
+	<h2>{% block title %}Create Project{% endblock %}</h2>
+
+	<p>Some text characters may be removed for quality.</p>
+
+	<form action="" method="post">{% csrf_token %}
+	    {{ form.as_p }}
+	    <button type="submit" class="button">Create</button>
+	    <a class="button" href="{% url 'project-list' %}">Cancel</a>
+	</form>
+{% endblock %}
