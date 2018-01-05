@@ -7,11 +7,12 @@
 	<p>{{ object.description }}</p>
 
 	{% if user.is_authenticated %}
-		{% if user_is_stakeholder %}
-			<div>
+		<div>
+			<a class="button" href="{% url 'trade-bid' object.slug %}">Buy</a>
+			{% if user_is_stakeholder %}
 				<a class="button" href="{% url 'trade-ask' object.slug %}">Sell</a>
-			</div>
-		{% endif %}
+			{% endif %}
+		</div>
 
 		{% if user == object.admin %}
 			<div>

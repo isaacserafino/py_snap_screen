@@ -6,8 +6,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from osm_web.mixins import AdminRequiredMixin, StakeholderRequiredMixin
-from osm_web.models import Project, Ask, Stake
+from osm_web.mixins import AdminRequiredMixin, StakeholderRequiredMixin, ProjectRelatedMixin
+from osm_web.models import Project, Ask, Stake, Bid
 from py_snap_screen import settings
 
 
@@ -85,5 +85,25 @@ class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
             return super(TradeAsk, self).form_invalid(form)
 
         ask.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class TradeBid(LoginRequiredMixin, ProjectRelatedMixin, CreateView):
+    template_name = "trade/bid.djhtml"
+    model = Bid
+    fields = ['price', 'quantity']
+
+    def form_valid(self, form:ModelForm) -> HttpResponse:
+        bid = form.save(commit=False)
+        self.object = bid
+
+        bid.project = self.retrieve_related_project()
+
+        bid.bidder = self.request.user
+
+        # TODO: Validate quantity and price within max available
+
+        bid.save()
 
         return HttpResponseRedirect(self.get_success_url())

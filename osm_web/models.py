@@ -1,12 +1,15 @@
+from abc import abstractmethod
 import re
 
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models.aggregates import Sum
 from django.urls.base import reverse
 from django_bleach.models import BleachField
 from django_extensions.db.fields import AutoSlugField
-from django.db.models.aggregates import Sum
+
+from py_snap_screen import settings
 
 
 class BetterBleachField(BleachField):
@@ -41,13 +44,33 @@ class Stake(models.Model):
                 active=True).aggregate(sum=Sum('quantity'))['sum'] or 0)
 
 
-class Ask(models.Model):
+class BidAsk(models.Model):
     active = models.BooleanField(default=True)
     price = models.PositiveIntegerField(validators=[MinValueValidator(1),
-            MaxValueValidator(1000000000)])
-
-    stake = models.ForeignKey(Stake)
+            MaxValueValidator(settings.MAX_SHARE_PRICE)])
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
     def get_absolute_url(self) -> str:
-        return reverse('project-detail', args=[self.stake.project.slug])
+        return reverse('project-detail', args=[self.get_project_slug()])
+
+    @abstractmethod
+    def get_project_slug(self) -> str:
+        pass
+
+    class Meta:
+        abstract = True
+
+
+class Ask(BidAsk):
+    stake = models.ForeignKey(Stake)
+
+    def get_project_slug(self) -> str:
+        return self.stake.project.slug
+
+
+class Bid(BidAsk):
+    bidder = models.ForeignKey(User)
+    project = models.ForeignKey(Project)
+
+    def get_project_slug(self) -> str:
+        return self.project.slug

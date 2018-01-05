@@ -43,5 +43,6 @@ urlpatterns = [
     url(r'^open_software_market/project/delete/(?P<slug>[-\w]+)', osm_web.views.ProjectDeactivate.as_view(),
             name='project-deactivate'),
 
-    url(r'^open_software_market/trade/ask/(?P<slug>[-\w]+)', osm_web.views.TradeAsk.as_view(), name='trade-ask')
+    url(r'^open_software_market/trade/ask/(?P<slug>[-\w]+)', osm_web.views.TradeAsk.as_view(), name='trade-ask'),
+    url(r'^open_software_market/trade/bid/(?P<slug>[-\w]+)', osm_web.views.TradeBid.as_view(), name='trade-bid')
 ]

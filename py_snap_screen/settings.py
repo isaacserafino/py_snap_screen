@@ -156,5 +156,6 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
 DEFAULT_SHARES_PER_PROJECT = 100
+MAX_SHARE_PRICE = 1000000000
 
 from py_snap_screen.settings_local import *  # @UnusedWildImport Because these are sensitive settings
