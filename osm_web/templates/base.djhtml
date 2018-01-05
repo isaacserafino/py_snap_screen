@@ -14,7 +14,7 @@
 	<h1>Open Software Market&trade;</h1>
 
 	<p>
-		<a class="button" href="/accounts/logout/?next=/open_software_market/project/add/">Logout</a>
+		<a class="button" href="/accounts/logout/?next=/open_software_market/project/list/">Logout</a>
 	</p>
 	<div id="content">
 		{% block content %}
