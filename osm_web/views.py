@@ -2,11 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.forms.models import ModelForm
 from django.http.response import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from osm_web.mixins import AdminRequiredMixin, StakeholderRequiredMixin, ProjectRelatedMixin
+from osm_web.mixins import AdminRequiredMixin, BidAskMixin
 from osm_web.models import Project, Ask, Stake, Bid
 from py_snap_screen import settings
 
@@ -66,44 +67,33 @@ class ProjectUpdate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     fields = ['description']
 
 
-class TradeAsk(LoginRequiredMixin, StakeholderRequiredMixin, CreateView):
+class TradeAsk(BidAskMixin, CreateView):
     template_name = "trade/ask.djhtml"
     model = Ask
-    fields = ['price', 'quantity']
 
-    def form_valid(self, form:ModelForm) -> HttpResponse:
-        ask = form.save(commit=False)
-        self.object = ask
+    def prepare_to_save(self, form:ModelForm, project_slug:str) -> bool:
+        ask = self.object
 
-        ask.stake = self.retrieve_related_stake()
+        ask.stake = self.retrieve_related_stake(project_slug)
 
         existing_offers = ask.stake.existing_offers()
-
         if ask.quantity > ask.stake.quantity - existing_offers:
             form.add_error('quantity', 'That many shares are not available.')
 
-            return super(TradeAsk, self).form_invalid(form)
+            return False
 
-        ask.save()
+        return True
 
-        return HttpResponseRedirect(self.get_success_url())
+    def retrieve_project(self, project_slug:str) -> Project:
+        stake = self.retrieve_related_stake(project_slug)
+
+        return stake.project
+
+    def retrieve_related_stake(self, project_slug:str) -> Stake:
+        return get_object_or_404(Stake, project__slug=project_slug,
+                project__active=True, quantity__gt=0, holder=self.request.user)
 
 
-class TradeBid(LoginRequiredMixin, ProjectRelatedMixin, CreateView):
+class TradeBid(BidAskMixin, CreateView):
     template_name = "trade/bid.djhtml"
     model = Bid
-    fields = ['price', 'quantity']
-
-    def form_valid(self, form:ModelForm) -> HttpResponse:
-        bid = form.save(commit=False)
-        self.object = bid
-
-        bid.project = self.retrieve_related_project()
-
-        bid.bidder = self.request.user
-
-        # TODO: Validate quantity and price within max available
-
-        bid.save()
-
-        return HttpResponseRedirect(self.get_success_url())
