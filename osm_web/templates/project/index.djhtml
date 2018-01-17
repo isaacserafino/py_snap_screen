@@ -1,6 +1,10 @@
 {% extends '../base.djhtml' %}
 
 {% block content %}
+	{% if request.user.userprofile %}
+		<p>Your reputation points: {{ user.userprofile.incentives }}</p>
+	{% endif %}
+
 	<h2>{% block title %}Projects{% endblock %}</h2>
 
 	<ul>

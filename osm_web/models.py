@@ -74,3 +74,12 @@ class Bid(BidAsk):
 
     def get_project_slug(self) -> str:
         return self.project.slug
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    incentives = models.PositiveIntegerField(validators=[MinValueValidator(1),
+            MaxValueValidator(settings.MAX_SHARE_PRICE)])
+
+
+import osm_web.signals  # @UnusedImport Simply to register them 
