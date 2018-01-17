@@ -39,9 +39,9 @@ class Stake(models.Model):
     project = models.ForeignKey(Project)
     quantity = models.PositiveIntegerField()
 
-    def existing_offers(self) -> int:
-        return int(Ask.objects.filter(stake=self,
-                active=True).aggregate(sum=Sum('quantity'))['sum'] or 0)
+    def count_existing_sell_offers(self) -> int:
+        return int(Ask.objects.filter(stake=self, active=True).aggregate(sum=
+            Sum('quantity'))['sum'] or 0)
 
 
 class BidAsk(models.Model):

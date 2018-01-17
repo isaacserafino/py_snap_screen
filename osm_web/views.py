@@ -76,7 +76,7 @@ class TradeAsk(BidAskMixin, CreateView):
 
         ask.stake = self.retrieve_related_stake(project_slug)
 
-        existing_offers = ask.stake.existing_offers()
+        existing_offers = ask.stake.count_existing_sell_offers()
         if ask.quantity > ask.stake.quantity - existing_offers:
             form.add_error('quantity', 'That many shares are not available.')
 
