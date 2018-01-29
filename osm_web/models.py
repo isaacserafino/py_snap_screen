@@ -10,6 +10,7 @@ from django_bleach.models import BleachField
 from django_extensions.db.fields import AutoSlugField
 
 from py_snap_screen import settings
+from django.db.models.expressions import F
 
 
 class BetterBleachField(BleachField):
@@ -32,6 +33,10 @@ class Project(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse('project-list')
+
+    def count_total_shares(self) -> int:
+        return int(self.stake_set.aggregate(sum=
+            Sum('quantity'))['sum'] or 0)
 
 
 class Stake(models.Model):
@@ -81,5 +86,8 @@ class UserProfile(models.Model):
     incentives = models.PositiveIntegerField(validators=[MinValueValidator(1),
             MaxValueValidator(settings.MAX_SHARE_PRICE)])
 
+    def calculate_existing_bid_incentives(self) -> int:
+        return int(Bid.objects.filter(bidder=self.user, active=True).aggregate(
+            sum=Sum(F('price') * F('quantity')))['sum'] or 0)
 
 import osm_web.signals  # @UnusedImport Simply to register them 

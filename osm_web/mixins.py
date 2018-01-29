@@ -31,10 +31,25 @@ class BidAskMixin(LoginRequiredMixin):
         return HttpResponseRedirect(self.get_success_url())
 
     def prepare_to_save(self, form:ModelForm, project_slug:str) -> bool:
-        self.object.project = self.retrieve_project(project_slug)
-        self.object.bidder = self.request.user
+        bid = self.object
+        project = self.retrieve_project(project_slug)
 
-        # TODO: Validate quantity and price within max available
+        total_shares = project.count_total_shares()
+        if bid.quantity > total_shares:
+            form.add_error('quantity', 'That project does not have that many shares.')
+
+            return False
+
+        bidder = self.request.user
+        existing_offers = bidder.userprofile.calculate_existing_bid_incentives()
+        if bid.price * bid.quantity > bidder.userprofile.incentives - existing_offers:
+            form.add_error('price', 'You do not have that many reputation points available.')
+
+            return False
+
+        bid.project = project
+        bid.bidder = bidder
+
         return True
 
     def get_context_data(self, **kwargs):
