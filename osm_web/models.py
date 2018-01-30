@@ -52,7 +52,9 @@ class Stake(models.Model):
 class BidAsk(models.Model):
     active = models.BooleanField(default=True)
     price = models.PositiveIntegerField(validators=[MinValueValidator(1),
-            MaxValueValidator(settings.MAX_SHARE_PRICE)])
+            MaxValueValidator(settings.MAX_SHARE_PRICE)],
+            help_text="reputation points per share")
+
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
     def get_absolute_url(self) -> str:
@@ -69,6 +71,8 @@ class BidAsk(models.Model):
 class Ask(BidAsk):
     stake = models.ForeignKey(Stake)
 
+    BidAsk._meta.get_field("quantity").verbose_name = "number of shares to sell"
+
     def get_project_slug(self) -> str:
         return self.stake.project.slug
 
@@ -76,6 +80,8 @@ class Ask(BidAsk):
 class Bid(BidAsk):
     bidder = models.ForeignKey(User)
     project = models.ForeignKey(Project)
+
+    BidAsk._meta.get_field("quantity").verbose_name = "number of shares to buy"
 
     def get_project_slug(self) -> str:
         return self.project.slug
