@@ -35,8 +35,7 @@ class Project(models.Model):
         return reverse('project-list')
 
     def count_total_shares(self) -> int:
-        return int(self.stake_set.aggregate(sum=
-            Sum('quantity'))['sum'] or 0)
+        return int(self.stake_set.aggregate(sum=Sum('quantity'))['sum'] or 0)
 
 
 class Stake(models.Model):
@@ -44,9 +43,9 @@ class Stake(models.Model):
     project = models.ForeignKey(Project)
     quantity = models.PositiveIntegerField()
 
-    def count_existing_sell_offers(self) -> int:
-        return int(Ask.objects.filter(stake=self, active=True).aggregate(sum=
-            Sum('quantity'))['sum'] or 0)
+    def calculate_available_shares_to_sell(self) -> int:
+        return self.quantity - int(Ask.objects.filter(stake=self,
+                active=True).aggregate(sum=Sum('quantity'))['sum'] or 0)
 
 
 class BidAsk(models.Model):
@@ -77,8 +76,19 @@ class Ask(BidAsk):
         return self.stake.project.slug
 
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    incentives = models.PositiveIntegerField(validators=[MinValueValidator(1),
+            MaxValueValidator(settings.MAX_SHARE_PRICE)])
+
+    def calculate_available_bid_incentives(self) -> int:
+        return self.incentives - int(Bid.objects.filter(bidder=self,
+                active=True).aggregate(
+                sum=Sum(F('price') * F('quantity')))['sum'] or 0)
+
+
 class Bid(BidAsk):
-    bidder = models.ForeignKey(User)
+    bidder = models.ForeignKey(UserProfile)
     project = models.ForeignKey(Project)
 
     BidAsk._meta.get_field("quantity").verbose_name = "number of shares to buy"
@@ -86,14 +96,5 @@ class Bid(BidAsk):
     def get_project_slug(self) -> str:
         return self.project.slug
 
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    incentives = models.PositiveIntegerField(validators=[MinValueValidator(1),
-            MaxValueValidator(settings.MAX_SHARE_PRICE)])
-
-    def calculate_existing_bid_incentives(self) -> int:
-        return int(Bid.objects.filter(bidder=self.user, active=True).aggregate(
-            sum=Sum(F('price') * F('quantity')))['sum'] or 0)
 
 import osm_web.signals  # @UnusedImport Simply to register them 
