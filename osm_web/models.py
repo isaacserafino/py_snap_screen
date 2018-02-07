@@ -27,7 +27,7 @@ class BetterBleachField(BleachField):
 
 class Project(models.Model):
     active = models.BooleanField(default=True)
-    admin = models.ForeignKey(User)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE)
     description = BetterBleachField()
     slug = AutoSlugField(unique=True, populate_from='description')
 
@@ -39,8 +39,8 @@ class Project(models.Model):
 
 
 class Stake(models.Model):
-    holder = models.ForeignKey(User)
-    project = models.ForeignKey(Project)
+    holder = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
     def calculate_available_shares_to_sell(self) -> int:
@@ -68,7 +68,7 @@ class BidAsk(models.Model):
 
 
 class Ask(BidAsk):
-    stake = models.ForeignKey(Stake)
+    stake = models.ForeignKey(Stake, on_delete=models.CASCADE)
 
     BidAsk._meta.get_field("quantity").verbose_name = "number of shares to sell"
 
@@ -88,8 +88,8 @@ class UserProfile(models.Model):
 
 
 class Bid(BidAsk):
-    bidder = models.ForeignKey(UserProfile)
-    project = models.ForeignKey(Project)
+    bidder = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     BidAsk._meta.get_field("quantity").verbose_name = "number of shares to buy"
 
