@@ -2,7 +2,7 @@
 
 {% block content %}
 	{% if request.user.userprofile %}
-		<p>Your reputation points: {{ user.userprofile.incentives }}</p>
+		<p><a href="{% url 'profile-detail' user.userprofile.slug %}">Profile</a></p>
 	{% endif %}
 
 	<h2>{% block title %}Projects{% endblock %}</h2>

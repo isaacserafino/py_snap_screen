@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from osm_web.mixins import AdminRequiredMixin
-from osm_web.models import Project, Ask, Stake, Bid
+from osm_web.models import Project, Ask, Stake, Bid, UserProfile
 from py_snap_screen import settings
 from django.shortcuts import get_object_or_404
 from osm_web.pure import TradeValidator
@@ -42,6 +42,20 @@ class ProjectDeactivate(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
         self.object.active = False
 
         return super(ProjectDeactivate, self).form_valid(form)
+
+
+class ProfileDetail(DetailView):
+    template_name = "profile/detail.djhtml"
+    model = UserProfile
+    fields = ['incentives']
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileDetail, self).get_context_data(**kwargs)
+
+        related_user = self.object.user
+        context['user_full_name'] = related_user.first_name + " " + related_user.last_name
+
+        return context
 
 
 class ProjectDetail(DetailView):

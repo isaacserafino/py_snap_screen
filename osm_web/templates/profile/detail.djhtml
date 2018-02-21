@@ -1,0 +1,13 @@
+{% extends '../base.djhtml' %}
+
+{% block content %}
+	<h2>{% block title %}Profile Detail{% endblock %}</h2>
+
+	<h3>Name</h3>
+	<p>{{ user_full_name }}</p>
+
+	<h3>Reputation Points</h3>
+	<p>{{ object.incentives }}</p>
+
+	<a class="button" href="{% url 'project-list' %}">Projects</a>
+{% endblock %}

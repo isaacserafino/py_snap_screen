@@ -31,6 +31,9 @@ urlpatterns = [
     url(r'^accounts/logout/$', auth_views.LogoutView.as_view()),
 
     # OSM path mappings
+    url(r'^open_software_market/profile/(?P<slug>[-\w]+)', osm_web.views.ProfileDetail.as_view(),
+            name='profile-detail'),
+
     url(r'^open_software_market/project/list/', osm_web.views.ProjectList.as_view(), name='project-list'),
     url(r'^open_software_market/project/update/(?P<slug>[-\w]+)', osm_web.views.ProjectUpdate.as_view(),
             name='project-update'),

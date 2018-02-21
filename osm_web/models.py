@@ -81,6 +81,8 @@ class UserProfile(models.Model):
     incentives = models.PositiveIntegerField(validators=[MinValueValidator(1),
             MaxValueValidator(settings.MAX_SHARE_PRICE)])
 
+    slug = AutoSlugField(unique=True, populate_from=('user__first_name', 'user__last_name'))
+
     def calculate_available_bid_incentives(self) -> int:
         return self.incentives - int(Bid.objects.filter(bidder=self,
                 active=True).aggregate(
